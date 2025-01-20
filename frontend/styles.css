@@ -1,0 +1,808 @@
+:root {
+  /* Colors */
+  --color-primary: #4285f4;
+  --color-primary-dark: #357ae8;
+  --color-danger: #ff4444;
+  --color-danger-light: #ff6b6b;
+  --color-background-light: #fff;
+  --color-background-dark: #1a1a1a;
+  --color-surface-light: #f2f2f2;
+  --color-surface-dark: #2d2d2d;
+  --color-header-dark: #363636;
+  --color-text-light: #333;
+  --color-text-dark: #fff;
+  --color-text-muted: #666;
+  --color-text-muted-light: #b0b0b0;
+  --color-border-light: #e1e1e1;
+  --color-border-dark: #505050;
+  --color-message-incoming-light: #e1e1e1;
+  --color-message-incoming-dark: #404040;
+  --color-danger-bright: #ff0000;
+  --color-danger-glow: rgba(255, 0, 0, 0.2);
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 5px rgba(0,0,0,0.05);
+  --shadow-md: 0 2px 8px rgba(66,133,244,0.15);
+  --shadow-lg: 0 4px 8px rgba(66,133,244,0.3);
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+  
+  /* Border radius */
+  --radius-sm: 5px;
+  --radius-md: 10px;
+  --radius-lg: 20px;
+  --radius-full: 25px;
+  
+  /* Font sizes */
+  --font-size-xs: 0.8em;
+  --font-size-sm: 14px;
+  --font-size-md: 15px;
+  --font-size-lg: 18px;
+  --font-size-xl: 24px;
+  
+  /* Transitions */
+  --transition-default: all 0.3s ease;
+
+  /* Chat font styles */
+  --font-chat: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, sans-serif;
+  --line-height-chat: 1.5;
+  --letter-spacing-chat: -0.01em;
+}
+
+/* Update existing styles to use variables */
+body {
+  font-family: 'Orbitron', sans-serif;
+  background-color: var(--color-background-light);
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center items horizontally */
+  justify-content: center; /* Center items vertically */
+  height: 100vh;
+}
+
+/* Dark mode variable overrides */
+body.dark-mode {
+  --color-background: var(--color-background-dark);
+  --color-surface: var(--color-surface-dark);
+  --color-text: var(--color-text-dark);
+  --color-text-muted: var(--color-text-muted-light);
+  --color-border: var(--color-border-dark);
+  --color-message-incoming: var(--color-message-incoming-dark);
+}
+
+.chat-card {
+  width: 100%;
+  max-width: 100%;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.chat-header {
+  padding: var(--spacing-xl);
+  background-color: var(--color-surface-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Adjust alignment */
+}
+
+.chat-header .h2 {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-light);
+}
+
+.chat-body {
+  flex-grow: 1;
+  padding: var(--spacing-xl);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  position: relative; /* Add relative positioning */
+  /* Add custom scrollbar styles */
+  scrollbar-width: thin;  /* Firefox */
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;  /* Firefox */
+}
+
+/* Webkit scrollbar styles */
+.chat-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-body::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: var(--radius-full);
+}
+
+.chat-body::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-full);
+  transition: var(--transition-default);
+}
+
+.chat-body::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Dark mode scrollbar */
+.dark-mode .chat-body {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;  /* Firefox */
+}
+
+.dark-mode .chat-body::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.dark-mode .chat-body::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.message {
+  margin-bottom: var(--spacing-xl);  /* Increased to make room for timestamp */
+  padding: var(--spacing-md) var(--spacing-lg);
+  max-width: 65%;
+  min-width: 120px; /* Add minimum width for short messages */
+  font-family: var(--font-chat);
+  position: relative;
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-chat);
+  letter-spacing: var(--letter-spacing-chat);
+  border-radius: var(--radius-md);
+  transition: var(--transition-default);
+}
+
+.message .timestamp {
+  position: absolute;
+  bottom: -18px;
+  font-size: 11px;
+  color: var(--color-text-muted);
+  opacity: 0.8;
+  font-family: var(--font-chat);
+  white-space: nowrap; /* Prevent timestamp from wrapping */
+  width: auto; /* Allow timestamp to take its natural width */
+}
+
+.incoming .timestamp {
+  left: 0;
+}
+
+.outgoing .timestamp {
+  right: 0;
+}
+
+/* Add styles for very short messages */
+.message.short-message {
+  min-width: 60px; /* Minimum width for very short messages */
+  padding: var(--spacing-sm) var(--spacing-md); /* Reduced padding for short messages */
+}
+
+.dark-mode .message .timestamp {
+  color: var(--color-text-muted-light);
+}
+
+.incoming {
+  background-color: var(--color-message-incoming-light);
+  align-self: flex-start;
+  color: var(--color-text-light);
+  margin-left: 0; /* Align incoming messages to the left */
+  border-radius: 10px 10px 10px 0; /* Rounded edges with one sharp edge */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.outgoing {
+  background-color: var(--color-primary);
+  align-self: flex-end;
+  color: #fff;
+  text-align: right;
+  margin-right: 0; /* Align outgoing messages to the right */
+  border-radius: 10px 10px 0 10px; /* Rounded edges with one sharp edge */
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.message p {
+  font-size: var(--font-size-lg); /* Increase font size */
+  margin: 0;
+  font-weight: 400;
+  white-space: pre-line; /* Preserve line breaks */
+}
+
+.chat-footer {
+  padding: var(--spacing-xl);
+  background-color: var(--color-surface-light);
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center items horizontally */
+}
+
+.chat-footer form {
+  display: flex;
+  width: 100%;
+  max-width: 800px; /* Limit the width of the form */
+  gap: var(--spacing-sm);
+  align-items: center;
+  padding: 0 var(--spacing-lg);
+}
+
+.chat-footer input[type="text"] {
+  flex: 1;
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: var(--font-size-md);
+  border: 2px solid var(--color-border-light);
+  border-radius: var(--radius-full);
+  outline: none;
+  transition: var(--transition-default);
+  background-color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.chat-footer input[type="text"]:focus {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.chat-footer button[type="submit"] {
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: var(--font-size-md);
+  border: none;
+  background-color: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: var(--transition-default);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  box-shadow: var(--shadow-sm);
+}
+
+.chat-footer button[type="submit"]:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+.chat-footer button[type="submit"]:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Add specific styles for the mic button */
+#micContainer {
+  display: flex;
+  align-items: center;
+  margin-left: var(--spacing-sm);
+}
+
+#micButton {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 2px solid var(--color-border-light);  /* Add border */
+  cursor: pointer;
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: 1.2em;
+  transition: var(--transition-default);
+}
+
+#micButton:hover {
+  border-color: var(--color-primary);  /* Change border color on hover */
+}
+
+#micButton i {
+  color: var(--color-text-muted);
+}
+
+#micButton .status-text {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+#listeningText {
+  display: none;
+  color: var(--color-danger);
+}
+
+#tapToRecordText {
+  display: inline;
+}
+
+#micButton.listening {
+  border-color: var(--color-danger-bright);  /* Red border when listening */
+  background-color: transparent;
+}
+
+#micButton.listening i {
+  color: var(--color-danger-bright);
+  animation: micPulse 1.5s infinite;
+}
+
+#listeningText, #tapToRecordText {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* Add specific styles for the cancel button */
+#cancelButton {
+  background-color: transparent;
+  color: #ff0000;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-radius: var(--radius-sm);
+}
+
+#cancelButton:hover {
+  background-color: var(--color-message-incoming-light);
+}
+
+/* Update continuous listening button styles */
+#continuousListeningButton {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 2px solid var(--color-border-light);  /* Match mic button border */
+  cursor: pointer;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-sm);
+  border-radius: var(--radius-lg);
+  margin-left: var(--spacing-lg);
+  transition: var(--transition-default);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm); /* Increased gap for better icon spacing */
+}
+
+#continuousListeningButton i {
+  font-size: 1.1em; /* Make icon slightly larger */
+}
+
+#continuousListeningButton span {
+  display: inline; /* Ensure text is visible by default */
+}
+
+#continuousListeningButton:hover {
+  border-color: var(--color-primary);  /* Match mic button hover state */
+  background-color: transparent;
+  color: var(--color-primary);  /* Keep text color as primary */
+}
+
+#continuousListeningButton.danger {
+  border-color: var(--color-danger-bright);
+  color: var(--color-danger-bright);
+  animation: pulse 2s infinite;
+  background-color: rgba(255, 0, 0, 0.1); /* Add light red background */
+}
+
+#continuousListeningButton.danger:hover {
+  background-color: rgba(255, 0, 0, 0.2); /* Slightly darker on hover */
+  color: var(--color-danger-bright);
+  border-color: var(--color-danger-bright);
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+  }
+}
+
+/* Remove the previous ::before content since we're using explicit icons */
+#continuousListeningButton::before {
+  content: none;
+}
+
+@keyframes chatAnimation {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chat-card .message {
+  animation: chatAnimation 0.3s ease-in-out;
+  animation-fill-mode: both;
+  animation-delay: 0.1s;
+}
+
+.chat-card .message:nth-child(even) {
+  animation-delay: 0.2s;
+}
+
+.chat-card .message:nth-child(odd) {
+  animation-delay: 0.3s;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --font-size-lg: 16px;
+    --font-size-xl: 20px;
+    --spacing-xl: 15px;
+  }
+
+  .chat-footer form {
+    padding: 0 var(--spacing-sm);
+    gap: var(--spacing-xs);
+  }
+
+  .chat-footer button[type="submit"] {
+    padding: var(--spacing-sm);
+    min-width: 40px;
+    aspect-ratio: 1;
+  }
+
+  /* Hide button text, show only icon */
+  .chat-footer button[type="submit"] span {
+    display: none;
+  }
+
+  #micButton {
+    padding: var(--spacing-sm);
+    min-width: 40px;
+    aspect-ratio: 1;
+    justify-content: center; /* Center icon horizontally */
+  }
+
+  #micButton i {
+    margin: 0 auto; /* Center icon within button */
+  }
+
+  /* Always hide both status texts on mobile */
+  #micButton .status-text,
+  #micButton.listening #listeningText,
+  #micButton #tapToRecordText {
+    display: none !important;
+  }
+
+  #micButton .status-text {
+    display: none;
+  }
+
+  #continuousListeningButton {
+    padding: var(--spacing-sm);
+    min-width: 40px;
+    aspect-ratio: 1;
+    margin-left: var(--spacing-sm);
+    justify-content: center;
+  }
+
+  #continuousListeningButton i {
+    margin: 0;
+    font-size: 1.2em;
+  }
+
+  #continuousListeningButton span {
+    display: none !important; /* Hide text only on mobile */
+  }
+
+  .chat-footer input[type="text"] {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --font-size-lg: 14px;
+    --font-size-xl: 18px;
+    --spacing-xl: 12px;
+  }
+
+  .chat-footer {
+    padding: var(--spacing-sm);
+  }
+
+  .chat-footer form {
+    max-width: 100%;
+  }
+}
+
+.beta-label {
+  display: inline-block;
+  background-color: #ffcc00;
+  color: #000;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: var(--font-size-xs);
+  margin-left: var(--spacing-sm);
+  vertical-align: middle;
+}
+
+.generating-container {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.loader {
+  display: inline-block;
+  width: 12px;  /* made smaller to match text height */
+  height: 12px;
+  border: 2px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 2px solid #3498db;
+  animation: spin 1s linear infinite;
+  margin: 0; /* remove margin */
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.speaking-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-left: var(--spacing-sm);
+  color: var(--color-primary);
+}
+
+.speaking-waves {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.speaking-wave {
+  width: 2px;
+  height: 12px;
+  background-color: var(--color-primary);
+  animation: wave 1s infinite ease-in-out;
+}
+
+.speaking-wave:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.speaking-wave:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.5); }
+  50% { transform: scaleY(1); }
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: var(--spacing-sm);
+  border-radius: 50%;
+  transition: var(--transition-default);
+}
+
+.theme-toggle:hover {
+  background-color: rgba(0,0,0,0.1);
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+  background-color: var(--color-background-dark);
+}
+
+.dark-mode .chat-card {
+  background-color: var(--color-surface-dark);
+  color: var(--color-text-dark);
+}
+
+.dark-mode .chat-header {
+  background-color: var(--color-header-dark);
+  color: var(--color-text-dark);
+}
+
+.dark-mode .chat-header .h2 {
+  color: var(--color-text-dark);
+}
+
+.dark-mode .chat-footer {
+  background-color: var(--color-header-dark);
+}
+
+.dark-mode .message.incoming {
+  background-color: var(--color-message-incoming-dark);
+  color: var(--color-text-dark);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.dark-mode .chat-footer input[type="text"] {
+  background-color: var(--color-message-incoming-dark);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-dark);
+}
+
+.dark-mode .chat-footer input[type="text"]:focus {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.dark-mode .chat-footer input[type="text"]::placeholder {
+  color: var(--color-text-muted-light);  /* Lighter color for better visibility in dark mode */
+}
+
+.dark-mode #micButton {
+  border-color: var(--color-border-dark);  /* Darker border in dark mode */
+  color: var(--color-text-dark);  /* Changed from #808080 to white */
+}
+
+.dark-mode #micButton:hover {
+  border-color: var(--color-primary);  /* Same hover effect in dark mode */
+}
+
+.dark-mode #micButton i {
+  color: var(--color-text-dark);  /* Make mic icon white in dark mode */
+}
+
+.dark-mode #micButton .status-text {
+  color: var(--color-text-muted-light);  /* Lighter gray for better visibility */
+}
+
+.dark-mode #listeningText {
+  color: var(--color-danger-light);  /* Brighter red for better visibility in dark mode */
+}
+
+.dark-mode #micButton.listening {
+  border-color: var(--color-danger-bright);  /* Red border when listening */
+  background-color: transparent;
+}
+
+.dark-mode #micButton.listening i {
+  color: var(--color-danger-bright);
+  text-shadow: 0 0 8px var(--color-danger-bright);
+  animation: micPulse 1.5s infinite;
+}
+
+.dark-mode #listeningText {
+  color: var(--color-danger-bright);
+  text-shadow: 0 0 8px var(--color-danger-bright);
+}
+
+.dark-mode #continuousListeningButton {
+  color: var(--color-text-dark);
+  border-color: var(--color-border-dark);  /* Match mic button dark mode border */
+}
+
+.dark-mode #continuousListeningButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);  /* Subtle white background in dark mode */
+  color: var(--color-text-dark);  /* Keep text white in dark mode */
+}
+
+.dark-mode #continuousListeningButton.danger {
+  border-color: var(--color-danger-bright);
+  color: var (--color-danger-bright);
+}
+
+.dark-mode .theme-toggle {
+  color: var(--color-text-dark);
+}
+
+.dark-mode .theme-toggle:hover {
+  background-color: rgba(255,255,255,0.1);
+}
+
+@keyframes micPulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Update light theme button styles */
+#micButton, #continuousListeningButton {
+  border: 2px solid var(--color-border-light);
+  background-color: rgba(0, 0, 0, 0.03); /* Slight dark tint in light mode */
+}
+
+#micButton:hover, #continuousListeningButton:hover {
+  border-color: var(--color-primary);
+  background-color: rgba(66, 133, 244, 0.08); /* Subtle blue tint on hover */
+}
+
+/* Update dark theme button styles */
+.dark-mode #micButton, 
+.dark-mode #continuousListeningButton {
+  border-color: var(--color-border-dark);
+  background-color: rgba(255, 255, 255, 0.05); /* Slight light tint in dark mode */
+}
+
+.dark-mode #micButton:hover, 
+.dark-mode #continuousListeningButton:hover {
+  border-color: var(--color-primary);
+  background-color: rgba(255, 255, 255, 0.1); /* Lighter tint on hover */
+}
+
+/* Maintain danger states */
+#micButton.listening, 
+#continuousListeningButton.danger {
+  background-color: rgba(255, 0, 0, 0.08); /* Subtle red background */
+}
+
+.dark-mode #micButton.listening, 
+.dark-mode #continuousListeningButton.danger {
+  background-color: rgba(255, 0, 0, 0.15); /* Slightly stronger red in dark mode */
+}
+
+/* Add the Inter font import to the HTML head section */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+/* Add styles for the scroll-to-bottom button */
+.scroll-bottom-button {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: var(--spacing-sm) var(--spacing-xl);
+  min-width: 160px;
+  height: 40px;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  transition: var(--transition-default);
+  z-index: 100;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.scroll-bottom-button i {
+  font-size: 0.9em;
+}
+
+.scroll-bottom-button:hover {
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.scroll-bottom-button.visible {
+  display: flex;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dark-mode .scroll-bottom-button {
+  box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+}

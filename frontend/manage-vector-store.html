@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Store Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="manage-vector-store.css">
+</head>
+<body>
+    <div class="container">
+        <button class="theme-switch" onclick="toggleTheme()">
+            <i class="fas fa-moon"></i>
+        </button>
+
+        <div class="header">
+            <div class="header-title">
+                <i class="fas fa-layer-group text-accent"></i>
+                <h1>Vector Store Management</h1>
+            </div>
+        </div>
+
+        <div class="stats-panel">
+            <div class="stat-item">
+                <div class="stat-icon-wrapper">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <span class="stat-label">Total Documents</span>
+                <span class="stat-value" id="doc-count">-</span>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" 
+                       class="search-bar" 
+                       placeholder="Search documents..." 
+                       oninput="filterDocuments(this.value)">
+            </div>
+            <div class="toolbar-actions">
+                <div class="selection-group">
+                    <button class="btn btn-primary btn-with-icon" onclick="toggleSelectAll()" id="selectAllBtn">
+                        <i class="fas fa-check-square"></i>
+                        <span>Select All</span>
+                    </button>
+                    <span id="selection-counter" class="selection-count hidden">
+                        <i class="fas fa-tasks"></i>
+                        <span>0 selected</span>
+                    </span>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-secondary btn-with-icon" id="bulkActionsBtn">
+                        <i class="fas fa-cog"></i>
+                        <span>Actions</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="#" class="dropdown-item danger" onclick="showDeleteConfirmation('all')">
+                            <i class="fas fa-trash-alt"></i>
+                            <span>Delete Selected</span>
+                        </a>
+                        <a href="#" class="dropdown-item" onclick="exportSelected()">
+                            <i class="fas fa-file-export"></i>
+                            <span>Export Selected</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="document-list" class="document-list">
+            <div class="loading">Loading documents...</div>
+        </div>
+
+        <div class="pagination">
+            <button class="btn btn-icon" onclick="changePage(-1)" id="prevPage">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <span id="pageInfo" class="page-info">Page 1 of 1</span>
+            <button class="btn btn-icon" onclick="changePage(1)" id="nextPage">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            <select onchange="changePageSize(this.value)" class="page-size-select">
+                <option value="10">10 per page</option>
+                <option value="25">25 per page</option>
+                <option value="50">50 per page</option>
+                <option value="100">100 per page</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <h2 id="confirmTitle">Confirm Delete</h2>
+            <p id="confirmMessage">Are you sure you want to delete?</p>
+            <div class="modal-buttons">
+                <button class="btn" onclick="hideModal()">Cancel</button>
+                <button class="btn btn-danger" id="confirmBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="manage-vector-store.js"></script>
+</body>
+</html>
