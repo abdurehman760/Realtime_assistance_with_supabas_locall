@@ -1,0 +1,485 @@
+:root[data-theme="light"] {
+    --primary-color: #4285f4;
+    --bg-color: #f3f4f6;
+    --card-bg: #ffffff;
+    --text-color: #1f2937;
+    --text-secondary: #6b7280;
+    --border-color: #e5e7eb;
+    --hover-color: rgba(0, 0, 0, 0.05);
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --notice-bg: #fff3cd;
+    --notice-border: #ffeeba;
+    --notice-text: #856404;
+}
+
+:root[data-theme="dark"] {
+    --primary-color: #60a5fa;
+    --bg-color: #1f2937;
+    --card-bg: #111827;
+    --text-color: #f3f4f6;
+    --text-secondary: #9ca3af;
+    --border-color: #374151;
+    --hover-color: rgba(255, 255, 255, 0.05);
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --notice-bg: #3f2f00;
+    --notice-border: #594400;
+    --notice-text: #ffd965;
+}
+
+/* General Layout */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    height: 100vh; /* Force full height */
+    background: var(--bg-color);
+    color: var(--text-color);
+    display: block; /* Change from flex to block */
+    overflow: hidden; /* Prevent scrolling on body */
+}
+
+/* Update container layout */
+.container {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+/* Header */
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.title-icon {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+h1 {
+    color: var(--text-color); /* Use theme text color instead of hardcoded #2c3e50 */
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+/* Update header styles */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.nav-link {
+    color: var(--text-color, #333);
+    text-decoration: none;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-link:hover {
+    background-color: var(--hover-color, rgba(0, 0, 0, 0.1));
+}
+
+.nav-link i {
+    font-size: 1.2rem;
+}
+
+.theme-toggle {
+    background: transparent;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 0.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.theme-toggle:hover {
+    background: var(--hover-color);
+}
+
+/* Format Notice */
+.format-notice {
+    background-color: var(--notice-bg);
+    border: 1px solid var(--notice-border);
+    color: var(--notice-text);
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.file-limits {
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    color: var(--text-secondary); /* Use theme variable instead of hardcoded #666 */
+}
+
+/* Update upload section layout */
+.upload-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Change from center to flex-start */
+    align-items: center;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1rem;
+    gap: 2rem; /* Increase gap between elements */
+}
+
+#uploadForm {
+    width: 100%;
+    max-width: 600px; /* Limit form width */
+    margin: 0 auto;
+    gap: 1.5rem; /* Increase gap between label and button */
+}
+
+input[type="file"] {
+    padding: 1rem;
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    color: var(--text-color);
+    background: var(--card-bg);
+}
+
+input[type="file"]:hover {
+    border-color: var(--primary-color); /* Use theme primary color instead of hardcoded #2c3e50 */
+}
+
+button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background: #2980b9;
+    transform: translateY(-1px);
+}
+
+button:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Center submit button */
+button[type="submit"] {
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Status Messages */
+.status {
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-color);
+}
+
+.status.active {
+    opacity: 1;
+}
+
+.status.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.status.loading {
+    background-color: #e2e3e5;
+    color: #383d41;
+    border: 1px solid #d6d8db;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Progress Bar */
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background-color: #f0f0f0;
+    border-radius: 2px;
+    margin-top: 10px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: #3498db;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+/* Add specific dark mode styles */
+:root[data-theme="dark"] .file-limits {
+    color: var(--text-secondary);
+}
+
+:root[data-theme="dark"] input[type="file"] {
+    border-color: var(--border-color);
+    background: var(--bg-color);
+}
+
+:root[data-theme="dark"] input[type="file"]:hover {
+    border-color: var(--primary-color);
+    background: var(--bg-color);
+}
+
+/* File Input Styles */
+.input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Update file upload area */
+.labelFile {
+    min-height: 120px; /* Smaller base height */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 200px;
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 1rem;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: var(--bg-color);
+    margin: 0; /* Remove margin */
+    box-sizing: border-box;
+    gap: 0.75rem;
+    outline: none; /* Allow focus outline */
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+}
+
+.labelFile:hover {
+    border-color: var(--primary-color);
+    background: var(--hover-color);
+}
+
+.labelFile svg {
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    transition: color 0.3s ease;
+    width: 40px; /* Smaller icon */
+    height: 40px;
+}
+
+.labelFile:hover svg {
+    color: var (--primary-color);
+}
+
+.labelFile p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.labelFile:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--input-focus);
+}
+
+.labelFile:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+.labelFile:focus-within {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Dark mode specific adjustments */
+:root[data-theme="dark"] .labelFile {
+    background: var(--bg-secondary);
+}
+
+:root[data-theme="dark"] .labelFile:hover {
+    background: var(--hover-color);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .container {
+        padding: 0.75rem;
+        width: 95%;
+    }
+
+    h1 {
+        font-size: 1.25rem;
+    }
+
+    button {
+        padding: 0.8rem 1.5rem;
+    }
+    
+    .upload-section {
+        padding: 0.5rem;
+    }
+
+    .header {
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+    }
+    
+    .header-title {
+        gap: 0.5rem;
+    }
+    
+    .title-icon {
+        font-size: 1.25rem;
+    }
+    
+    .format-notice {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .labelFile {
+        min-height: 100px;
+        padding: 0.75rem;
+    }
+    
+    .labelFile svg {
+        width: 32px;
+        height: 32px;
+        margin-bottom: 0.25rem;
+    }
+    
+    .labelFile p {
+        font-size: 0.8rem;
+    }
+    
+    button[type="submit"] {
+        padding: 0.625rem;
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+    
+    .upload-section {
+        padding: 1rem;
+        gap: 1.5rem;
+    }
+    
+    .labelFile {
+        min-height: 140px;
+    }
+}
+
+@media (max-height: 600px) {
+    .labelFile {
+        min-height: 90px;
+        padding: 1rem;
+    }
+    
+    .labelFile svg {
+        width: 30px;
+        height: 30px;
+    }
+
+    .upload-section {
+        padding: 0.75rem;
+        gap: 1rem;
+    }
+    
+    .labelFile {
+        flex-direction: row;
+        justify-content: center;
+        padding: 0.75rem;
+    }
+    
+    .labelFile svg {
+        width: 28px;
+        height: 28px;
+        margin-bottom: 0;
+        margin-right: 0.5rem;
+    }
+}
+
+.upload-field {
+    position: relative;
+    width: 100%;
+}

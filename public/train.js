@@ -79,3 +79,26 @@ document.getElementById('pdfFile').addEventListener('change', (e) => {
         updateStatus('', '');
     }
 });
+
+// Add theme toggle function
+function toggleTheme() {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    
+    html.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    
+    // Update icon
+    const themeIcon = document.querySelector('.theme-toggle i');
+    themeIcon.className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+}
+
+// Set initial theme
+document.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    
+    const themeIcon = document.querySelector('.theme-toggle i');
+    themeIcon.className = savedTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+});

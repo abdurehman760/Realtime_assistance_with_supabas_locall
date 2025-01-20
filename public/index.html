@@ -6,7 +6,7 @@
   <meta name="description" content="Texagon Assistant - Your AI-powered conversational assistant">
   <meta name="theme-color" content="#4285f4">
   
-  <title>Texagon Assistant | AI Conversation</title>
+  <title>Assistant | AI Conversation</title>
   
   <!-- Preload critical assets -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,14 +31,22 @@
         Texagon Assistant
         <span class="beta-label">Beta</span>
       </div>
-      <button 
-        id="themeToggle" 
-        class="theme-toggle" 
-        aria-label="Toggle theme"
-        title="Switch theme"
-      >
-        <i class="fas fa-moon"></i>
-      </button>
+      <div class="header-actions">
+        <a href="/train.html" class="nav-link" title="Train Assistant">
+          <i class="fas fa-graduation-cap"></i>
+        </a>
+        <a href="/manage-vector-store.html" class="nav-link" title="Manage Vector Store">
+          <i class="fas fa-database"></i>
+        </a>
+        <button 
+          id="themeToggle" 
+          class="theme-toggle" 
+          aria-label="Toggle theme"
+          title="Switch theme"
+        >
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
     </div>
     
     <main class="chat-body" id="transcriptions" role="main" aria-live="polite">

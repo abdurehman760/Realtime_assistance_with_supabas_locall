@@ -806,3 +806,22 @@ body.dark-mode {
 .dark-mode .scroll-bottom-button {
   box-shadow: 0 2px 5px rgba(0,0,0,0.4);
 }
+
+/* Add styles for the header actions and navigation links */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-link {
+  color: var(--text-color);
+  text-decoration: none;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background-color 0.3s;
+}
+
+.nav-link:hover {
+  background-color: var(--hover-color);
+}

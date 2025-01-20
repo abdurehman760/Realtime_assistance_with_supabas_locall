@@ -122,6 +122,24 @@ body {
     background: var(--surface-hover);
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.nav-link {
+    color: var(--text-color);
+    text-decoration: none;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: background-color 0.3s;
+}
+
+.nav-link:hover {
+    background-color: var(--hover-color);
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 1rem;

@@ -1,42 +1,30 @@
 # Texagon Assistant Usage Guide
 
-## File Format Support
+## Quick Start URLs
 
-**Important:** Texagon Assistant currently only supports PDF files. Other file formats (docx, txt, etc.) are not supported at this time.
+1. **Chat Interface**
+   - URL: `http://localhost:3000/index.html`
+   - Use this to interact with the assistant
+   - Type questions or use voice input
+   - Send messages to get responses
 
-## Training the Assistant with New PDFs
+2. **Training Interface**
+   - URL: `http://localhost:3000/train.html`
+   - Upload PDF files (max 10MB)
+   - Train the assistant with new documents
+   - Monitor training status
 
-To train the Texagon Assistant with new PDF documents:
+3. **Vector Store Management**
+   - URL: `http://localhost:3000/manage-vector-store.html`
+   - View uploaded documents
+   - Delete unwanted documents
+   - Monitor vector store status
+   - Export document embeddings as JSON
+  
 
-1. Access the training page by navigating to:
-   ```
-   http://localhost:3000/train.html
-   ```
+## Basic Troubleshooting
 
-2. On the training page:
-   - Click the "Choose File" button to select a PDF document from your computer
-   - Only PDF files (.pdf) are accepted
-   - The selected file name will appear next to the button
-   - Click "Upload and Train" to start the process
-
-3. Training Process:
-   - The status will show "Uploading file..." while the process is ongoing
-   - Wait for the confirmation message "File uploaded and training completed successfully!"
-   - If there's an error, the status will display the error message
-
-4. After Training:
-   - The new PDF content will be immediately available for queries
-   - You can return to the main chat interface to ask questions about the newly uploaded content
-
-## File Requirements:
-- **Format:** PDF files only (.pdf)
-- **Size Limit:** Maximum 10MB
-- **Content:** Text-based PDFs (scanned documents may not work properly)
-- **Protection:** PDFs must not be password-protected
-- **Encoding:** UTF-8 compatible
-
-## Notes:
-- Ensure your PDF is readable and not password-protected
-- Large PDF files may take longer to process
-- The upload limit is set to 10MB by default
-- Supported file format: PDF (.pdf) only
+- Ensure the server is running on port 3000
+- Check file size limits before uploading
+- Use supported file formats (PDF only)
+- Verify network connectivity
