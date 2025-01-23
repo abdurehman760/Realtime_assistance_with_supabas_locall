@@ -1,8 +1,27 @@
+// Global Constants and Variables
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let audioContext;
+let audioQueue = [];
+let isPlaying = false;
+let isListening = false;
+let isContinuousListening = false;
+let firstChunkTime = null;
+let isFirstChunk = true;
+
 document.addEventListener('DOMContentLoaded', () => {
-  // Add theme switching functionality
+  // DOM Element References
   const themeToggle = document.getElementById('themeToggle');
   const themeIcon = themeToggle.querySelector('i');
-  
+  const form = document.getElementById('questionForm');
+  const transcriptions = document.getElementById('transcriptions');
+  const micButton = document.getElementById('micButton');
+  const listeningText = document.getElementById('listeningText');
+  const tapToRecordText = document.getElementById('tapToRecordText');
+  const continuousListeningButton = document.getElementById('continuousListeningButton');
+  const chatBody = document.getElementById('transcriptions');
+  const scrollButton = document.getElementById('scrollBottomButton');
+
+  // Add theme switching functionality
   // Check for saved theme preference or default to 'light'
   const savedTheme = localStorage.getItem('theme') || 'light';
   document.body.classList.toggle('dark-mode', savedTheme === 'dark');
@@ -14,10 +33,19 @@ document.addEventListener('DOMContentLoaded', () => {
     updateThemeIcon(isDarkMode);
   });
   
+  /**
+   * Updates the theme icon based on dark mode state
+   * @param {boolean} isDarkMode - Current dark mode state
+   */
   function updateThemeIcon(isDarkMode) {
     themeIcon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
   }
 
+  /**
+   * Formats time to human-readable string
+   * @param {Date} date - Date object to format
+   * @returns {string} Formatted time string
+   */
   function formatTime(date) {
     return date.toLocaleTimeString('en-US', { 
       hour: 'numeric', 
@@ -26,6 +54,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  /**
+   * Creates a message element for chat display
+   * @param {string} content - Message content
+   * @param {boolean} isOutgoing - Whether message is from user
+   * @param {number|null} timeTaken - Response time in milliseconds
+   * @returns {HTMLElement} Message element
+   */
   function createMessageElement(content, isOutgoing = false, timeTaken = null) {
     const message = document.createElement('div');
     message.classList.add('message', isOutgoing ? 'outgoing' : 'incoming');
@@ -52,12 +87,9 @@ document.addEventListener('DOMContentLoaded', () => {
   );
   document.getElementById('transcriptions').appendChild(initialMessage);
 
-  const form = document.getElementById('questionForm');
-  const transcriptions = document.getElementById('transcriptions');
-  let audioContext;
-  let audioQueue = [];
-  let isPlaying = false;
-
+  /**
+   * Resets audio context and queue
+   */
   function resetAudio() {
     audioQueue = [];
     isPlaying = false;
@@ -115,9 +147,6 @@ document.addEventListener('DOMContentLoaded', () => {
     console.time('Server Response Time');
     const responseStartTime = Date.now();
     const eventSource = new EventSource(`/pdf-loader/retrieve-data?query=${encodeURIComponent(question)}`);
-
-    let firstChunkTime = null;
-    let isFirstChunk = true;
 
     async function playNextChunk() {
       if (audioQueue.length === 0 || isPlaying) return;
@@ -214,15 +243,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Speech Recognition Setup
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   const recognition = new SpeechRecognition();
   recognition.continuous = false;
   recognition.lang = 'en-US';
-
-  const micButton = document.getElementById('micButton');
-  const listeningText = document.getElementById('listeningText');
-  const tapToRecordText = document.getElementById('tapToRecordText');
-  let isListening = false;
 
   micButton.addEventListener('click', () => {
     if (!isListening) {
@@ -232,6 +255,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  /**
+   * Starts speech recognition listening
+   */
   function startListening() {
     isListening = true;
     micButton.classList.add('listening');
@@ -243,6 +269,9 @@ document.addEventListener('DOMContentLoaded', () => {
     recognition.start();
   }
 
+  /**
+   * Stops speech recognition listening
+   */
   function stopListening() {
     isListening = false;
     micButton.classList.remove('listening');
@@ -283,9 +312,6 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // Add continuous listening functionality
-  const continuousListeningButton = document.getElementById('continuousListeningButton');
-  let isContinuousListening = false;
-
   continuousListeningButton.addEventListener('click', () => {
     isContinuousListening = !isContinuousListening;
     if (isContinuousListening) {
@@ -295,6 +321,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  /**
+   * Enables continuous listening mode
+   */
   function enableContinuousListening() {
     recognition.continuous = true;
     continuousListeningButton.innerHTML = window.innerWidth <= 768 ? 
@@ -305,6 +334,9 @@ document.addEventListener('DOMContentLoaded', () => {
     startListening();
   }
 
+  /**
+   * Disables continuous listening mode
+   */
   function disableContinuousListening() {
     recognition.continuous = false;
     continuousListeningButton.innerHTML = window.innerWidth <= 768 ? 
@@ -331,10 +363,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  const chatBody = document.getElementById('transcriptions');
-  const scrollButton = document.getElementById('scrollBottomButton');
-  
   // Check if should show scroll button
+  /**
+   * Checks scroll position and toggles scroll button visibility
+   */
   function checkScroll() {
     const { scrollTop, scrollHeight, clientHeight } = chatBody;
     const shouldShow = scrollTop + clientHeight < scrollHeight - 100;
@@ -353,6 +385,10 @@ document.addEventListener('DOMContentLoaded', () => {
   chatBody.addEventListener('scroll', checkScroll);
 
   // Modify the existing message append logic to check scroll
+  /**
+   * Appends message to chat and checks scroll position
+   * @param {HTMLElement} message - Message element to append
+   */
   function appendMessage(message) {
     transcriptions.appendChild(message);
     checkScroll();
