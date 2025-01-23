@@ -1,5 +1,7 @@
-// Global Constants and Variables
+// Global Constants
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+// Global Variables
 let audioContext;
 let audioQueue = [];
 let isPlaying = false;
@@ -9,7 +11,7 @@ let firstChunkTime = null;
 let isFirstChunk = true;
 
 document.addEventListener('DOMContentLoaded', () => {
-  // DOM Element References
+  // DOM Elements
   const themeToggle = document.getElementById('themeToggle');
   const themeIcon = themeToggle.querySelector('i');
   const form = document.getElementById('questionForm');
@@ -21,12 +23,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const chatBody = document.getElementById('transcriptions');
   const scrollButton = document.getElementById('scrollBottomButton');
 
-  // Add theme switching functionality
-  // Check for saved theme preference or default to 'light'
+  // Speech Recognition Configuration
+  const recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.lang = 'en-US';
+
+  // Theme initialization
   const savedTheme = localStorage.getItem('theme') || 'light';
   document.body.classList.toggle('dark-mode', savedTheme === 'dark');
   updateThemeIcon(savedTheme === 'dark');
-  
+
+  // Add theme switching functionality
   themeToggle.addEventListener('click', () => {
     const isDarkMode = document.body.classList.toggle('dark-mode');
     localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
@@ -241,11 +248,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     questionInput.value = '';
   });
-
-  // Speech Recognition Setup
-  const recognition = new SpeechRecognition();
-  recognition.continuous = false;
-  recognition.lang = 'en-US';
 
   micButton.addEventListener('click', () => {
     if (!isListening) {
