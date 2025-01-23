@@ -1,3 +1,6 @@
+// =========================================================
+// IMPORTS AND CONFIGURATIONS
+// =========================================================
 import { Injectable } from '@nestjs/common';
 import { SupabaseVectorStore } from "@langchain/community/vectorstores/supabase";
 import { OpenAIEmbeddings, ChatOpenAI } from '@langchain/openai';
@@ -14,14 +17,23 @@ import { AI_CONFIG } from '../config/ai.config';
 
 dotenv.config();
 
+// =========================================================
+// VECTOR STORE SERVICE CLASS
+// =========================================================
 @Injectable()
 export class VectorStoreService {
+  // -------------------------
+  // Class Properties
+  // -------------------------
   private cache = new Map<string, any>();
   private allChunks: string = '';
   private embeddings: OpenAIEmbeddings;
   private supabaseClient: any;
   private vectorStore: SupabaseVectorStore;
 
+  // -------------------------
+  // Constructor
+  // -------------------------
   constructor(private readonly audioService: AudioService) {
     this.embeddings = new OpenAIEmbeddings(AI_CONFIG.embedding);
 
@@ -36,6 +48,14 @@ export class VectorStoreService {
     });
   }
 
+  // =========================================================
+  // PRIVATE HELPER METHODS
+  // =========================================================
+  /**
+   * Sends text with accompanying audio stream
+   * @param text - The text to convert to speech
+   * @param onData - Callback for handling chunks of data
+   */
   private async sendTextWithAudio(text: string, onData: (chunk: any, isAudio?: boolean) => void) {
     // Start generating audio first
     const audioPromise = this.audioService.streamTextToSpeech(text);
@@ -57,7 +77,13 @@ export class VectorStoreService {
     }
   }
 
-  // Rename method to reflect Supabase
+  // =========================================================
+  // PUBLIC METHODS
+  // =========================================================
+  /**
+   * Adds documents to the Supabase vector store
+   * @param docs - Array of documents to store
+   */
   async addDocumentsToStore(docs: any[]) {
     try {
       console.log(`Attempting to store ${docs.length} documents...`);
@@ -87,11 +113,22 @@ export class VectorStoreService {
     }
   }
 
+  /**
+   * Retrieves and processes queries from the vector store
+   * @param query - The user's query string
+   * @param onData - Callback for handling response chunks
+   * @returns Promise with the complete answer
+   */
   async retrieveFromStore(query: string, onData: (chunk: any, isAudio?: boolean) => void) {
+    // -------------------------
+    // Query Pre-processing
+    // -------------------------
+    console.log('\n[QUERY] Processing:', query);
     const cleanQuery = query.toLowerCase().trim();
 
     // Check for stop commands
     if (STOP_COMMANDS.includes(cleanQuery)) {
+      console.log('[COMMAND] Stop detected');
       await this.sendTextWithAudio('Ok', onData);
       return 'Ok';
     }
@@ -99,6 +136,7 @@ export class VectorStoreService {
     // Check for greetings
     if (GREETINGS.has(cleanQuery)) {
       const response = GREETINGS.get(cleanQuery);
+      console.log('[GREETING] Response:', response);
       await this.sendTextWithAudio(response, onData);
       return response;
     }
@@ -106,6 +144,7 @@ export class VectorStoreService {
     // Check for appreciation/thanks
     if (APPRECIATION_RESPONSES.has(cleanQuery)) {
       const response = APPRECIATION_RESPONSES.get(cleanQuery);
+      console.log('[APPRECIATION] Response:', response);
       await this.sendTextWithAudio(response, onData);
       return response;
     }
@@ -115,17 +154,18 @@ export class VectorStoreService {
     const startTime = Date.now();
 
     if (this.cache.has(query)) {
+      console.log('[CACHE] Found cached response');
       return this.cache.get(query);
     }
 
-    console.log(`Setup time: ${Date.now() - startTime}ms - Setup embeddings and Supabase connection`);
+    console.log(`[SETUP] Completed in ${Date.now() - startTime}ms`);
 
     const retrievalStartTime = Date.now();
     const retriever = this.vectorStore.asRetriever({
       ...AI_CONFIG.retriever,
       callbacks: [{
         handleRetrieverEnd(documents) {
-          console.log(`Retrieved ${documents.length} documents`);
+          console.log(`[RETRIEVAL] Found ${documents.length} relevant documents`);
         },
       }],
     });
@@ -157,13 +197,15 @@ export class VectorStoreService {
     });
 
     const retrievedDocs = await retriever.invoke(query);
-    console.log(`Retrieval time: ${Date.now() - retrievalStartTime}ms`);
+    console.log(`[RETRIEVAL] Completed in ${Date.now() - retrievalStartTime}ms`);
 
     const processingStartTime = Date.now();
     const stream = await ragChain.stream({
       question: query,
       context: retrievedDocs,
     });
+
+    console.log('[RESPONSE] Starting AI stream...');
 
     const readable = new Readable({
       read() {
@@ -175,7 +217,11 @@ export class VectorStoreService {
       onData(chunk);
       this.allChunks += chunk;
       readable.push(chunk);
+      process.stdout.write(chunk); // Show real-time response in terminal
     }
+
+    console.log(`\n[RESPONSE] Completed in ${Date.now() - processingStartTime}ms`);
+    console.log('[RESPONSE] Length:', this.allChunks.length, 'characters');
 
     readable.push(null);
 

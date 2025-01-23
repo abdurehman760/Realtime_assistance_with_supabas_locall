@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Realtime Chat | AI Conversation</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="chat-card">
+        <div class="chat-header">
+            <div class="h2">
+                <i class="fas fa-robot"></i>
+                Realtime Assistant
+                <span class="beta-label">Beta</span>
+            </div>
+            <div class="header-actions">
+                <a href="/" class="nav-link" title="Back to Chat">
+                    <i class="fas fa-comment"></i>
+                </a>
+                <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="loadingIndicator" class="loading-indicator hidden">
+            <div class="loader2">
+                <p class="text">
+                    <span class="letter letter1">C</span>
+                    <span class="letter letter2">o</span>
+                    <span class="letter letter3">n</span>
+                    <span class="letter letter4">n</span>
+                    <span class="letter letter5">e</span>
+                    <span class="letter letter6">c</span>
+                    <span class="letter letter7">t</span>
+                    <span class="letter letter8">i</span>
+                    <span class="letter letter9">n</span>
+                    <span class="letter letter10">g</span>
+                </p>
+            </div>
+        </div>
+
+        <main class="chat-body" id="transcriptions" role="main" aria-live="polite">
+            <button id="scrollBottomButton" class="scroll-bottom-button" aria-label="Scroll to new messages">
+                New Messages <i class="fas fa-chevron-down"></i>
+            </button>
+        </main>
+
+        <div class="chat-footer">
+            <div class="controls">
+                <div class="controls-group">
+                    <button id="startBtn" class="control-button">
+                        <i class="fas fa-play"></i>
+                        <span>Start</span>
+                    </button>
+                    
+                    <button id="stopBtn" class="control-button danger" disabled>
+                        <i class="fas fa-stop"></i>
+                        <span>Stop</span>
+                    </button>
+                </div>
+
+                <div id="sessionTimer" class="session-timer" >
+                    <div class="timer-label">Session:</div>
+                    <i class="fas fa-clock"></i>
+                    <span>--s</span>
+                    <i class="fas fa-info-circle tooltip-icon"></i>
+                    <div class="tooltip">
+                        For security, each session expires after a few minutes. 
+                        Start a new session when timer ends.
+                    </div>
+                </div>
+
+                <div class="mode-switch hidden"> <!-- Add hidden class -->
+                    <label class="switch">
+                        <input type="checkbox" id="modeToggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <span class="mode-label">VAD Mode</span>
+                </div>
+
+                <button id="pushToTalkBtn" class="control-button ptt hidden">
+                    <i class="fa-solid fa-walkie-talkie"></i>
+                    <span>Push to Talk</span>
+                    <div class="level-indicator">
+                        <div class="level-bar"></div>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="realtime.js"></script>
+</body>
+</html>
