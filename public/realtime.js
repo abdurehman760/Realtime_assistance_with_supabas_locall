@@ -1,5 +1,28 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Theme switching functionality
+    // Global State Variables
+    let pc;                     // RTCPeerConnection instance
+    let dc;                     // RTCDataChannel instance
+    let audioStream = null;     // MediaStream for audio input
+    let currentAIMessage = null;// Current AI response message element
+    let currentUserMessage = null;// Current user message element
+    let messageStartTime = null;// Timestamp for response timing
+    let isVADMode = true;      // Voice Activity Detection mode flag
+    let audioContext;          // AudioContext instance
+    let analyser;             // Audio analyser node
+    let isRecording = false;   // Recording state flag
+    
+    // Timer related variables
+    let keyExpirationTimer;
+    let keyExpirationTime;
+    let countdownInterval;
+    
+    // Audio analysis constants
+    const SILENCE_THRESHOLD = 0.01;
+    const MIN_SPEECH_TIME = 300; // Minimum speech duration in ms
+    
+    /**
+     * Theme Management
+     */
     const themeToggle = document.getElementById('themeToggle');
     const themeIcon = themeToggle.querySelector('i');
     
@@ -17,16 +40,13 @@ document.addEventListener('DOMContentLoaded', () => {
         themeIcon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
     }
 
-    let pc, dc;
-    const startBtn = document.getElementById('startBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const transcriptions = document.getElementById('transcriptions');
-    const loadingIndicator = document.getElementById('loadingIndicator');
-    let currentAIMessage = null;
-    let currentUserMessage = null;
-    let messageStartTime = null;
-    let audioStream = null; // Add this at the top with other state variables
-
+    /**
+     * Message UI Management
+     * @param {string} content - Message content
+     * @param {boolean} isOutgoing - Whether message is from user
+     * @param {number} timeTaken - Response time in ms
+     * @param {string} sourceContext - Source context for AI responses
+     */
     function createMessageElement(content, isOutgoing = false, timeTaken = null, sourceContext = null) {
         const message = document.createElement('div');
         message.classList.add('message', isOutgoing ? 'outgoing' : 'incoming');
@@ -82,10 +102,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return message;
     }
 
-    let keyExpirationTimer;
-    let keyExpirationTime;
-    let countdownInterval;
-
+    /**
+     * Session Timer Management
+     * @param {number} expirationTime - Timestamp when session expires
+     */
     function updateCountdown(expirationTime) {
         const timerElement = document.getElementById('sessionTimer');
         
@@ -108,6 +128,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
 
+    /**
+     * WebRTC Connection Management
+     */
     async function init() {
         try {
             // Update button to loading state
@@ -162,7 +185,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     session: {
                         instructions: "You are a helpful AI assistant with access to company information. Your role is to understand user queries, search the company knowledge base using the query_company_info function, and provide accurate responses based on the retrieved information. If a user asks about company-related topics, always check the knowledge base first. Provide clear, professional, and concise responses. If the information isn't available in the knowledge base, politely inform the user.",
                         input_audio_transcription: {
-                            model: "whisper-1"
+                            model: "whisper-1",
+                            language: "en"
                         },
                         turn_detection: isVADMode ? {
                             type: "server_vad",
@@ -320,9 +344,247 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('.mode-switch').classList.add('hidden');
     }
 
-    // Modify the handleAPIResponse function to track context
-    let currentContext = null;
+    /**
+     * Audio Processing
+     */
+    function initAudioContext() {
+        if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
 
+    async function playAudioData(audioData) {
+        initAudioContext();
+        audioQueue.push(audioData);
+        
+        if (!isPlaying) {
+            playNextInQueue();
+        }
+    }
+
+    async function playNextInQueue() {
+        if (audioQueue.length === 0 || isPlaying) return;
+        
+        isPlaying = true;
+        const audioData = audioQueue.shift();
+        
+        try {
+            const audioBuffer = await audioContext.decodeAudioData(audioData.buffer);
+            const source = audioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            source.connect(audioContext.destination);
+            
+            source.onended = () => {
+                isPlaying = false;
+                playNextInQueue();
+            };
+            
+            source.start();
+        } catch (error) {
+            console.error('Audio playback error:', error);
+            isPlaying = false;
+            playNextInQueue();
+        }
+    }
+
+    /**
+     * Voice Mode Management
+     */
+    async function updateSessionMode() {
+        if (dc && dc.readyState === 'open') {
+            // Log the current mode
+            console.log('Updating session mode:', isVADMode ? 'VAD' : 'Manual');
+            
+            // First clear any existing audio buffer
+            dc.send(JSON.stringify({ type: "input_audio_buffer.clear" }));
+            
+            // Enable audio track for VAD mode, disable for manual
+            if (audioStream) {
+                const audioTrack = audioStream.getAudioTracks()[0];
+                if (audioTrack) {
+                    audioTrack.enabled = isVADMode;
+                    console.log('Audio track enabled:', audioTrack.enabled);
+                }
+            }
+
+            // Update session configuration
+            const sessionConfig = {
+                type: "session.update",
+                session: {
+                    input_audio_transcription: {
+                        model: "whisper-1",
+                        language: "en"
+                    },
+                    turn_detection: isVADMode ? {
+                        type: "server_vad",
+                        threshold: 0.7,
+                        prefix_padding_ms: 300,
+                        silence_duration_ms: 800,
+                        create_response: true
+                    } : null
+                }
+            };
+
+            // Send the configuration update
+            dc.send(JSON.stringify(sessionConfig));
+            console.log('Session config sent:', sessionConfig);
+        }
+    }
+
+    /**
+     * Manual Recording Controls
+     */
+    function startManualInput() {
+        if (!isVADMode && dc && dc.readyState === 'open') {
+            dc.send(JSON.stringify({
+                type: "input_audio_buffer.clear"
+            }));
+            dc.send(JSON.stringify({
+                type: "input_audio_buffer.commit"
+            }));
+        }
+    }
+
+    function endManualInput() {
+        if (!isVADMode && dc && dc.readyState === 'open') {
+            dc.send(JSON.stringify({
+                type: "response.create"
+            }));
+        }
+    }
+
+    /**
+     * Push-to-Talk Implementation
+     */
+    function setupAudioAnalyser(stream) {
+        if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        
+        analyser = audioContext.createAnalyser();
+        const source = audioContext.createMediaStreamSource(stream);
+        source.connect(analyser);
+        analyser.fftSize = 256;
+        
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        
+        // Initially disable the audio track
+        const audioTrack = stream.getAudioTracks()[0];
+        if (audioTrack) {
+            audioTrack.enabled = false;
+        }
+        
+        function checkAudioLevel() {
+            if (!isRecording) {
+                requestAnimationFrame(checkAudioLevel);
+                return;
+            }
+            
+            analyser.getByteFrequencyData(dataArray);
+            const average = dataArray.reduce((a, b) => a + b) / bufferLength;
+            audioLevel = average / 128.0;
+            
+            const levelBar = pushToTalkBtn.querySelector('.level-bar');
+            if (levelBar) {
+                levelBar.style.height = `${audioLevel * 100}%`; // Changed from width to height
+            }
+            
+            if (audioLevel > SILENCE_THRESHOLD) {
+                if (!speechStartTime) {
+                    speechStartTime = Date.now();
+                }
+                if (silenceTimer) {
+                    clearTimeout(silenceTimer);
+                    silenceTimer = null;
+                }
+            } else if (speechStartTime && !silenceTimer) {
+                silenceTimer = setTimeout(() => {
+                    endRecording();
+                }, 500);
+            }
+            
+            requestAnimationFrame(checkAudioLevel);
+        }
+        
+        checkAudioLevel();
+    }
+
+    function startRecording() {
+        if (!isVADMode && dc && dc.readyState === 'open') {
+            isRecording = true;
+            speechStartTime = null;
+            pushToTalkBtn.classList.add('recording');
+
+            // Ensure we have an audio track to work with
+            if (audioStream) {
+                const audioTrack = audioStream.getAudioTracks()[0];
+                if (audioTrack) {
+                    audioTrack.enabled = true; // Enable the audio track
+                }
+            }
+
+            dc.send(JSON.stringify({ 
+                type: "input_audio_buffer.clear"
+            }));
+
+            // Create a new user message to show recording state
+            currentUserMessage = createMessageElement('Recording...', true);
+            currentUserMessage.classList.add('recording');
+            transcriptions.appendChild(currentUserMessage);
+            transcriptions.scrollTop = transcriptions.scrollHeight;
+        }
+    }
+
+    function endRecording() {
+        if (!isVADMode && isRecording && dc && dc.readyState === 'open') {
+            isRecording = false;
+            pushToTalkBtn.classList.remove('recording');
+
+            // Disable the audio track when not recording
+            if (audioStream) {
+                const audioTrack = audioStream.getAudioTracks()[0];
+                if (audioTrack) {
+                    audioTrack.enabled = false;
+                }
+            }
+
+            if (speechStartTime && Date.now() - speechStartTime >= MIN_SPEECH_TIME) {
+                // Remove the recording message
+                if (currentUserMessage) {
+                    currentUserMessage.remove();
+                    currentUserMessage = null;
+                }
+
+                dc.send(JSON.stringify({ 
+                    type: "input_audio_buffer.commit"
+                }));
+                dc.send(JSON.stringify({ 
+                    type: "response.create"
+                }));
+            } else {
+                // If speech was too short, just clear and remove the message
+                dc.send(JSON.stringify({ 
+                    type: "input_audio_buffer.clear"
+                }));
+                if (currentUserMessage) {
+                    currentUserMessage.remove();
+                    currentUserMessage = null;
+                }
+            }
+            
+            speechStartTime = null;
+            if (silenceTimer) {
+                clearTimeout(silenceTimer);
+                silenceTimer = null;
+            }
+        }
+    }
+
+    /**
+     * WebRTC Response Handler
+     * @param {Object} data - Response data from WebRTC
+     */
     function handleAPIResponse(data) {
         console.log('Received event:', data);
         
@@ -468,94 +730,10 @@ document.addEventListener('DOMContentLoaded', () => {
         transcriptions.scrollTop = transcriptions.scrollHeight;
     }
 
-    // Add audio playback functionality
-    let audioContext;
-    let audioQueue = [];
-    let isPlaying = false;
-
-    function initAudioContext() {
-        if (!audioContext) {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
-    }
-
-    async function playAudioData(audioData) {
-        initAudioContext();
-        audioQueue.push(audioData);
-        
-        if (!isPlaying) {
-            playNextInQueue();
-        }
-    }
-
-    async function playNextInQueue() {
-        if (audioQueue.length === 0 || isPlaying) return;
-        
-        isPlaying = true;
-        const audioData = audioQueue.shift();
-        
-        try {
-            const audioBuffer = await audioContext.decodeAudioData(audioData.buffer);
-            const source = audioContext.createBufferSource();
-            source.buffer = audioBuffer;
-            source.connect(audioContext.destination);
-            
-            source.onended = () => {
-                isPlaying = false;
-                playNextInQueue();
-            };
-            
-            source.start();
-        } catch (error) {
-            console.error('Audio playback error:', error);
-            isPlaying = false;
-            playNextInQueue();
-        }
-    }
-
-    const modeToggle = document.getElementById('modeToggle');
-    let isVADMode = true;
-
-    async function updateSessionMode() {
-        if (dc && dc.readyState === 'open') {
-            // Log the current mode
-            console.log('Updating session mode:', isVADMode ? 'VAD' : 'Manual');
-            
-            // First clear any existing audio buffer
-            dc.send(JSON.stringify({ type: "input_audio_buffer.clear" }));
-            
-            // Enable audio track for VAD mode, disable for manual
-            if (audioStream) {
-                const audioTrack = audioStream.getAudioTracks()[0];
-                if (audioTrack) {
-                    audioTrack.enabled = isVADMode;
-                    console.log('Audio track enabled:', audioTrack.enabled);
-                }
-            }
-
-            // Update session configuration
-            const sessionConfig = {
-                type: "session.update",
-                session: {
-                    input_audio_transcription: {
-                        model: "whisper-1"
-                    },
-                    turn_detection: isVADMode ? {
-                        type: "server_vad",
-                        threshold: 0.7,
-                        prefix_padding_ms: 300,
-                        silence_duration_ms: 800,
-                        create_response: true
-                    } : null
-                }
-            };
-
-            // Send the configuration update
-            dc.send(JSON.stringify(sessionConfig));
-            console.log('Session config sent:', sessionConfig);
-        }
-    }
-
+    /**
+     * Event Listeners
+     */
+    // Mode toggle listener
     modeToggle.addEventListener('change', () => {
         isVADMode = modeToggle.checked;
         const modeLabel = modeToggle.parentElement.nextElementSibling;
@@ -565,27 +743,20 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSessionMode();
     });
 
-    // Add manual mode control functions
-    function startManualInput() {
-        if (!isVADMode && dc && dc.readyState === 'open') {
-            dc.send(JSON.stringify({
-                type: "input_audio_buffer.clear"
-            }));
-            dc.send(JSON.stringify({
-                type: "input_audio_buffer.commit"
-            }));
-        }
-    }
+    // Push-to-talk button listeners
+    pushToTalkBtn.addEventListener('mousedown', startRecording);
+    pushToTalkBtn.addEventListener('mouseup', endRecording);
+    pushToTalkBtn.addEventListener('mouseleave', endRecording);
+    pushToTalkBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        startRecording();
+    });
+    pushToTalkBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        endRecording();
+    });
 
-    function endManualInput() {
-        if (!isVADMode && dc && dc.readyState === 'open') {
-            dc.send(JSON.stringify({
-                type: "response.create"
-            }));
-        }
-    }
-
-    // Add keyboard shortcuts for manual mode (Space key)
+    // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
         if (!isVADMode && e.code === 'Space' && !e.repeat) {
             e.preventDefault();
@@ -600,6 +771,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Start/Stop button listeners
     startBtn.addEventListener('click', async () => {
         try {
             await init();
@@ -636,157 +808,10 @@ document.addEventListener('DOMContentLoaded', () => {
         cleanup();
     });
 
-    // Add cleanup on page unload
+    // Cleanup on page unload
     window.addEventListener('beforeunload', cleanup);
 
-    // Initial button state
+    // Initialize buttons state
     startBtn.innerHTML = '<i class="fas fa-play"></i><span>Start Assistant</span>';
-    stopBtn.classList.add('hidden'); // Hide stop button initially
-
-    const pushToTalkBtn = document.getElementById('pushToTalkBtn');
-    let analyser;
-    let isRecording = false;
-    let silenceTimer = null;
-    let audioLevel = 0;
-    const SILENCE_THRESHOLD = 0.01;
-    const MIN_SPEECH_TIME = 300; // Minimum 300ms of speech required
-    let speechStartTime = null;
-
-    function setupAudioAnalyser(stream) {
-        if (!audioContext) {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        
-        analyser = audioContext.createAnalyser();
-        const source = audioContext.createMediaStreamSource(stream);
-        source.connect(analyser);
-        analyser.fftSize = 256;
-        
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-        
-        // Initially disable the audio track
-        const audioTrack = stream.getAudioTracks()[0];
-        if (audioTrack) {
-            audioTrack.enabled = false;
-        }
-        
-        function checkAudioLevel() {
-            if (!isRecording) {
-                requestAnimationFrame(checkAudioLevel);
-                return;
-            }
-            
-            analyser.getByteFrequencyData(dataArray);
-            const average = dataArray.reduce((a, b) => a + b) / bufferLength;
-            audioLevel = average / 128.0;
-            
-            const levelBar = pushToTalkBtn.querySelector('.level-bar');
-            if (levelBar) {
-                levelBar.style.height = `${audioLevel * 100}%`; // Changed from width to height
-            }
-            
-            if (audioLevel > SILENCE_THRESHOLD) {
-                if (!speechStartTime) {
-                    speechStartTime = Date.now();
-                }
-                if (silenceTimer) {
-                    clearTimeout(silenceTimer);
-                    silenceTimer = null;
-                }
-            } else if (speechStartTime && !silenceTimer) {
-                silenceTimer = setTimeout(() => {
-                    endRecording();
-                }, 500);
-            }
-            
-            requestAnimationFrame(checkAudioLevel);
-        }
-        
-        checkAudioLevel();
-    }
-
-    function startRecording() {
-        if (!isVADMode && dc && dc.readyState === 'open') {
-            isRecording = true;
-            speechStartTime = null;
-            pushToTalkBtn.classList.add('recording');
-
-            // Ensure we have an audio track to work with
-            if (audioStream) {
-                const audioTrack = audioStream.getAudioTracks()[0];
-                if (audioTrack) {
-                    audioTrack.enabled = true; // Enable the audio track
-                }
-            }
-
-            dc.send(JSON.stringify({ 
-                type: "input_audio_buffer.clear"
-            }));
-
-            // Create a new user message to show recording state
-            currentUserMessage = createMessageElement('Recording...', true);
-            currentUserMessage.classList.add('recording');
-            transcriptions.appendChild(currentUserMessage);
-            transcriptions.scrollTop = transcriptions.scrollHeight;
-        }
-    }
-
-    function endRecording() {
-        if (!isVADMode && isRecording && dc && dc.readyState === 'open') {
-            isRecording = false;
-            pushToTalkBtn.classList.remove('recording');
-
-            // Disable the audio track when not recording
-            if (audioStream) {
-                const audioTrack = audioStream.getAudioTracks()[0];
-                if (audioTrack) {
-                    audioTrack.enabled = false;
-                }
-            }
-
-            if (speechStartTime && Date.now() - speechStartTime >= MIN_SPEECH_TIME) {
-                // Remove the recording message
-                if (currentUserMessage) {
-                    currentUserMessage.remove();
-                    currentUserMessage = null;
-                }
-
-                dc.send(JSON.stringify({ 
-                    type: "input_audio_buffer.commit"
-                }));
-                dc.send(JSON.stringify({ 
-                    type: "response.create"
-                }));
-            } else {
-                // If speech was too short, just clear and remove the message
-                dc.send(JSON.stringify({ 
-                    type: "input_audio_buffer.clear"
-                }));
-                if (currentUserMessage) {
-                    currentUserMessage.remove();
-                    currentUserMessage = null;
-                }
-            }
-            
-            speechStartTime = null;
-            if (silenceTimer) {
-                clearTimeout(silenceTimer);
-                silenceTimer = null;
-            }
-        }
-    }
-
-    // Add push-to-talk event listeners
-    pushToTalkBtn.addEventListener('mousedown', startRecording);
-    pushToTalkBtn.addEventListener('mouseup', endRecording);
-    pushToTalkBtn.addEventListener('mouseleave', endRecording);
-    pushToTalkBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        startRecording();
-    });
-    pushToTalkBtn.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        endRecording();
-    });
+    stopBtn.classList.add('hidden');
 });
