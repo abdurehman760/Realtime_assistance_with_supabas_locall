@@ -1,6 +1,42 @@
+// Constants and DOM Elements
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
+const DEFAULT_THEME = 'light';
+
+/**
+ * Updates the status message display with optional styling
+ * @param {string} message - The message to display
+ * @param {string} type - The type of message ('error', 'success', 'loading')
+ */
+function updateStatus(message, type) {
+    const status = document.getElementById('status');
+    status.innerHTML = message;
+    status.className = 'status active ' + type;
+}
+
+/**
+ * Toggles between light and dark theme
+ * Saves the preference to localStorage and updates UI elements
+ */
+function toggleTheme() {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    
+    html.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    
+    // Update icon
+    const themeIcon = document.querySelector('.theme-toggle i');
+    themeIcon.className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+}
+
+// Event Listeners
+/**
+ * Form submission handler for PDF upload
+ * Validates file, shows progress, and handles the upload process
+ */
 document.getElementById('uploadForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const status = document.getElementById('status');
     const file = document.getElementById('pdfFile').files[0];
     const submitButton = e.target.querySelector('button');
     
@@ -9,8 +45,8 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
         return;
     }
 
-    // File size check (10MB limit)
-    if (file.size > 10 * 1024 * 1024) {
+    // File size validation
+    if (file.size > MAX_FILE_SIZE) {
         updateStatus('File size exceeds 10MB limit', 'error');
         return;
     }
@@ -64,13 +100,10 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
     }
 });
 
-function updateStatus(message, type) {
-    const status = document.getElementById('status');
-    status.innerHTML = message;
-    status.className = 'status active ' + type;
-}
-
-// Add file input change listener for immediate feedback
+/**
+ * File input change handler
+ * Shows immediate feedback when a file is selected
+ */
 document.getElementById('pdfFile').addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -80,23 +113,12 @@ document.getElementById('pdfFile').addEventListener('change', (e) => {
     }
 });
 
-// Add theme toggle function
-function toggleTheme() {
-    const html = document.documentElement;
-    const currentTheme = html.getAttribute('data-theme');
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    
-    html.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    
-    // Update icon
-    const themeIcon = document.querySelector('.theme-toggle i');
-    themeIcon.className = newTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
-}
-
-// Set initial theme
+/**
+ * Initial theme setup on page load
+ * Retrieves saved theme preference or uses default
+ */
 document.addEventListener('DOMContentLoaded', () => {
-    const savedTheme = localStorage.getItem('theme') || 'light';
+    const savedTheme = localStorage.getItem('theme') || DEFAULT_THEME;
     document.documentElement.setAttribute('data-theme', savedTheme);
     
     const themeIcon = document.querySelector('.theme-toggle i');
