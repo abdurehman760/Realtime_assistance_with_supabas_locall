@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const sessionConfig = {
                     type: "session.update",
                     session: {
-                        instructions: "You are a helpful AI assistant with access to company information. Your role is to understand user queries, search the company knowledge base using the query_company_info function, and provide accurate responses based on the retrieved information. If a user asks about company-related topics, always check the knowledge base first. Provide clear, professional, and concise responses. If the information isn't available in the knowledge base, politely inform the user.",
+                        instructions: "You are an AI receptionist and assistant. You have two main functions: 1) Answer questions using the company knowledge base by calling the query_company_info function, 2) Help schedule appointments by collecting visitor information (name, date/time, reason for visit) and store them in Google Sheets using store_appointment function. For appointments, guide users through the booking process step by step and confirm all details before finalizing. Always be professional, courteous and helpful. If asked about company information not available in the knowledge base, politely inform the user.",
                         input_audio_transcription: {
                             model: "whisper-1",
                             language: "en"
@@ -787,7 +787,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         type: 'response.create',
                         response: {
                             modalities: ['text'],
-                            instructions: "You are an AI assistant trained on company data. When users ask questions, analyze their query and use function calling to access the relevant knowledge base. Provide accurate, helpful responses based on the available company information. If information is not available in the knowledge base, politely inform the user. Be professional and concise in your responses."
+                            instructions: "You are an AI receptionist and assistant. You have access to two tool functions: 1) query_company_info - which searches the company knowledge base for information, and 2) store_appointment - which stores appointment details in Google Sheets. Your main tasks are: 1) Answer questions by searching the company knowledge base using query_company_info, and 2) Schedule appointments by collecting visitor details (name, date/time, reason) and storing them using store_appointment. For appointments, guide users step by step and confirm details before finalizing. Always be professional and courteous. If information isn't found in the knowledge base, politely inform the user.",
                         }
                     };
                     dc.send(JSON.stringify(initialEvent));
