@@ -12,7 +12,6 @@ import { createStuffDocumentsChain } from 'langchain/chains/combine_documents';
 import { pull } from 'langchain/hub';
 import { Readable } from 'stream';
 import { AudioService } from '../audio/audio.service';
-import { STOP_COMMANDS, GREETINGS, APPRECIATION_RESPONSES } from '../config/responses.config';
 import { AI_CONFIG } from '../config/ai.config';
 
 dotenv.config();
@@ -125,29 +124,6 @@ export class VectorStoreService {
     // -------------------------
     console.log('\n[QUERY] Processing:', query);
     const cleanQuery = query.toLowerCase().trim();
-
-    // Check for stop commands
-    if (STOP_COMMANDS.includes(cleanQuery)) {
-      console.log('[COMMAND] Stop detected');
-      await this.sendTextWithAudio('Ok', onData);
-      return 'Ok';
-    }
-
-    // Check for greetings
-    if (GREETINGS.has(cleanQuery)) {
-      const response = GREETINGS.get(cleanQuery);
-      console.log('[GREETING] Response:', response);
-      await this.sendTextWithAudio(response, onData);
-      return response;
-    }
-
-    // Check for appreciation/thanks
-    if (APPRECIATION_RESPONSES.has(cleanQuery)) {
-      const response = APPRECIATION_RESPONSES.get(cleanQuery);
-      console.log('[APPRECIATION] Response:', response);
-      await this.sendTextWithAudio(response, onData);
-      return response;
-    }
 
     // Reset allChunks at the start of each request
     this.allChunks = '';
