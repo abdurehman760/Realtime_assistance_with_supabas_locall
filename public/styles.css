@@ -570,34 +570,14 @@ body.dark-mode {
 .speaking-indicator {
   display: inline-flex;
   align-items: center;
-  gap: var (--spacing-xs);
   margin-left: var(--spacing-sm);
   color: var(--color-primary);
 }
 
-.speaking-waves {
-  display: inline-flex;
-  gap: 2px;
-}
-
+/* Remove the wave-related styles since we're not using them anymore */
+.speaking-waves,
 .speaking-wave {
-  width: 2px;
-  height: 12px;
-  background-color: var(--color-primary);
-  animation: wave 1s infinite ease-in-out;
-}
-
-.speaking-wave:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.speaking-wave:nth-child(3) {
-  animation-delay: 0.4s;
-}
-
-@keyframes wave {
-  0%, 100% { transform: scaleY(0.5); }
-  50% { transform: scaleY(1); }
+  display: none;
 }
 
 /* Theme Toggle Button */
