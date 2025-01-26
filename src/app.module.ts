@@ -6,6 +6,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { ManageVectorStoreModule } from './manage-vector-store/manage-vector-store.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { ContextModule } from './context/context.module';
+import { AppointmentsModule } from './appointments/appointment.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ContextModule } from './context/context.module';
     ManageVectorStoreModule,
     RealtimeModule,
     ContextModule,
+    AppointmentsModule,
   ],
   controllers: [],
   providers: [],
