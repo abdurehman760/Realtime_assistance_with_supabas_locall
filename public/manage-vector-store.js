@@ -1,13 +1,41 @@
+/**
+ * @fileoverview Document management system for vector store
+ * Handles document CRUD operations, pagination, and UI interactions
+ */
+
+// Constants
+const REFRESH_INTERVAL = 30000;  // Auto-refresh interval in milliseconds
+const DEFAULT_THEME = 'light';   // Default theme setting
+
 // Global State Variables
-let documents = [];          // Stores all documents
-let selectedDocs = new Set(); // Tracks selected document IDs
-let currentPage = 1;         // Current page number for pagination
-let pageSize = 10;          // Number of documents per page
-let totalPages = 1;         // Total number of pages
+/**
+ * @type {Array} - Array to store all documents
+ */
+let documents = [];          
 
 /**
- * Theme Management
+ * @type {Set} - Set to track selected document IDs
+ */
+let selectedDocs = new Set(); 
+
+/**
+ * @type {number} - Current page number for pagination
+ */
+let currentPage = 1;         
+
+/**
+ * @type {number} - Number of documents to display per page
+ */
+let pageSize = 10;          
+
+/**
+ * @type {number} - Total number of pages based on document count
+ */
+let totalPages = 1;         
+
+/**
  * Toggles between light and dark theme
+ * Updates theme in localStorage and updates UI elements
  */
 function toggleTheme() {
     const html = document.documentElement;
@@ -22,9 +50,9 @@ function toggleTheme() {
 }
 
 /**
- * Document Filtering
  * Filters documents based on search query
- * @param {string} query - Search query
+ * @param {string} query - Search text to filter documents
+ * @returns {void}
  */
 function filterDocuments(query) {
     const filtered = query 
@@ -37,10 +65,10 @@ function filterDocuments(query) {
 }
 
 /**
- * Selection Management
+ * Updates the selection counter in the UI
+ * Shows/hides counter based on selection state
+ * @returns {void}
  */
-
-// Updates the selection counter in the UI
 function updateSelectionCounter() {
     const counter = document.getElementById('selection-counter');
     if (selectedDocs.size > 0) {
@@ -52,9 +80,10 @@ function updateSelectionCounter() {
 }
 
 /**
- * Toggles selection of a document
- * @param {number} id - Document ID
- * @param {HTMLElement} checkbox - Checkbox element
+ * Toggles selection state of a document
+ * @param {number} id - Document ID to toggle
+ * @param {HTMLInputElement} checkbox - Checkbox element that triggered the toggle
+ * @returns {void}
  */
 function toggleDocumentSelection(id, checkbox) {
     if (checkbox.checked) {
@@ -66,7 +95,10 @@ function toggleDocumentSelection(id, checkbox) {
     updateDeleteButton();
 }
 
-// Updates delete button text based on selection
+/**
+ * Updates delete button text with selection count
+ * @returns {void}
+ */
 function updateDeleteButton() {
     const deleteBtn = document.querySelector('.btn-danger');
     deleteBtn.textContent = selectedDocs.size 
@@ -75,12 +107,9 @@ function updateDeleteButton() {
 }
 
 /**
- * Modal and Delete Operations
- */
-
-/**
  * Shows delete confirmation modal
  * @param {string|number} type - 'all' for bulk delete or document ID for single delete
+ * @returns {void}
  */
 function showDeleteConfirmation(type) {
     if (type === 'all' && selectedDocs.size === 0) {
@@ -110,14 +139,18 @@ function showDeleteConfirmation(type) {
     modal.style.display = 'flex';
 }
 
-// Hides the modal
+/**
+ * Hides the confirmation modal
+ * @returns {void}
+ */
 function hideModal() {
     document.getElementById('confirmModal').style.display = 'none';
 }
 
 /**
- * Deletes selected documents
- * Makes API calls to delete multiple documents
+ * Deletes multiple selected documents
+ * Makes parallel API calls for deletion
+ * @returns {Promise<void>}
  */
 async function deleteSelectedDocuments() {
     try {
@@ -137,8 +170,9 @@ async function deleteSelectedDocuments() {
 }
 
 /**
- * Bulk Selection
  * Toggles selection of all documents on current page
+ * Updates UI elements accordingly
+ * @returns {void}
  */
 function toggleSelectAll() {
     const checkboxes = document.querySelectorAll('.document-checkbox');
@@ -161,12 +195,9 @@ function toggleSelectAll() {
 }
 
 /**
- * Pagination Controls
- */
-
-/**
- * Changes current page
- * @param {number} delta - Page change (+1 or -1)
+ * Changes the current page
+ * @param {number} delta - Page change amount (+1 or -1)
+ * @returns {void}
  */
 function changePage(delta) {
     const newPage = currentPage + delta;
@@ -177,8 +208,9 @@ function changePage(delta) {
 }
 
 /**
- * Updates page size
+ * Updates number of items shown per page
  * @param {number} size - New page size
+ * @returns {void}
  */
 function changePageSize(size) {
     pageSize = parseInt(size);
@@ -186,7 +218,10 @@ function changePageSize(size) {
     renderDocuments(documents);
 }
 
-// Updates document statistics in UI
+/**
+ * Updates document count in the UI
+ * @returns {void}
+ */
 function updateStats() {
     const docCountElement = document.getElementById('doc-count');
     if (docCountElement) {
@@ -195,9 +230,9 @@ function updateStats() {
 }
 
 /**
- * Document Rendering
  * Renders documents with pagination
- * @param {Array} docs - Array of documents to render
+ * @param {Array} docs - Array of documents to display
+ * @returns {void}
  */
 function renderDocuments(docs) {
     const documentList = document.getElementById('document-list');
@@ -245,8 +280,9 @@ function renderDocuments(docs) {
 }
 
 /**
- * Export Functionality
- * Exports selected documents as JSON
+ * Exports selected documents as JSON file
+ * Creates and triggers download of selected documents
+ * @returns {void}
  */
 function exportSelected() {
     const selectedData = documents.filter(doc => selectedDocs.has(doc.id));
@@ -262,8 +298,9 @@ function exportSelected() {
 }
 
 /**
- * Data Loading
- * Loads documents from the server
+ * Loads documents from server
+ * Fetches both documents and count
+ * @returns {Promise<void>}
  */
 async function loadDocuments() {
     try {
@@ -288,11 +325,11 @@ async function loadDocuments() {
 }
 
 // Initialization
-const savedTheme = localStorage.getItem('theme') || 'light';
+const savedTheme = localStorage.getItem('theme') || DEFAULT_THEME;
 document.documentElement.setAttribute('data-theme', savedTheme);
 
-// Initial load
+// Initial document load
 loadDocuments();
 
-// Auto-refresh (30-second interval)
-setInterval(loadDocuments, 30000);
+// Setup auto-refresh interval
+setInterval(loadDocuments, REFRESH_INTERVAL);
