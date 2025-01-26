@@ -161,17 +161,10 @@ document.addEventListener('DOMContentLoaded', () => {
       isPlaying = true;
       const audioData = audioQueue.shift();
       
-      // Add speaking indicator when audio starts
+      // Simplified speaking indicator - only showing the speaker icon
       const speakingIndicator = document.createElement('div');
       speakingIndicator.classList.add('speaking-indicator');
-      speakingIndicator.innerHTML = `
-        <i class="fas fa-volume-up"></i>
-        <div class="speaking-waves">
-          <div class="speaking-wave"></div>
-          <div class="speaking-wave"></div>
-          <div class="speaking-wave"></div>
-        </div>
-      `;
+      speakingIndicator.innerHTML = '<i class="fas fa-volume-up"></i>';
       aiMessageContent.appendChild(speakingIndicator);
       
       try {
@@ -215,8 +208,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const data = JSON.parse(event.data);
       if (data.type === 'text') {
+        // Remove the generating container if it exists
+        const generatingContainer = aiMessageContent.querySelector('.generating-container');
+        if (generatingContainer) {
+          generatingContainer.remove();
+        }
+        
         if (isFirstChunk) {
-          aiMessageContent.innerHTML = ''; // Clear the generating container
+          aiMessageContent.innerHTML = ''; // Clear any existing content
           isFirstChunk = false;
         }
         aiMessageContent.textContent += data.data;
