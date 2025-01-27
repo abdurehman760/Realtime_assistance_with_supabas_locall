@@ -16,6 +16,6 @@ export const AI_CONFIG = {
     distance: "cosine"
   },
   realtime: {
-    keyExpirationTime: 180000 // 3 minutes in milliseconds (3 * 60 * 1000)
+    keyExpirationTime: 300000 // 5 minutes in milliseconds (5 * 60 * 1000)
   }
 };
