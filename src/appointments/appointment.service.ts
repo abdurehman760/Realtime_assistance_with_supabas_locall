@@ -58,6 +58,23 @@ export class AppointmentService {
     });
   }
 
+  public async getBookedTimes(): Promise<string[]> {
+    try {
+      const range = 'Sheet1!B2:B'; // DateTime column
+      
+      const response = await this.sheets.spreadsheets.values.get({
+        spreadsheetId: this.SPREADSHEET_ID,
+        range,
+      });
+
+      // Return array of booked datetime strings
+      return (response.data.values || []).map(([dateTime]) => dateTime);
+    } catch (error) {
+      this.logger.error(`Error fetching booked times: ${error.message}`);
+      throw error;
+    }
+  }
+
   async scheduleAppointment(
     patientName: string,
     dateTime: string,

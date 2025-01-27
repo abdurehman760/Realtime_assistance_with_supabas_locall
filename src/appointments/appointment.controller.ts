@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpException, HttpStatus, Get } from '@nestjs/common';
 import { AppointmentService } from './appointment.service';
 
 interface AppointmentDto {
@@ -14,6 +14,25 @@ interface AppointmentDto {
 export class AppointmentController {
   constructor(private readonly appointmentService: AppointmentService) {}
 
+  @Get('booked-times')
+  async getBookedTimes() {
+    try {
+      const bookedTimes = await this.appointmentService.getBookedTimes();
+      return {
+        success: true,
+        data: bookedTimes,
+      };
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          error: 'Failed to fetch booked times',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   @Post('schedule')
   async scheduleAppointment(@Body() appointmentData: AppointmentDto) {
     try {
@@ -22,7 +41,7 @@ export class AppointmentController {
         appointmentData.dateTime,
         appointmentData.service,
         appointmentData.notes,
-        appointmentData.phoneNumber, // Add phone number
+        appointmentData.phoneNumber,
       );
 
       return {
@@ -33,7 +52,7 @@ export class AppointmentController {
       throw new HttpException(
         {
           success: false,
-          error: 'Failed to schedule appointment',
+          error: error.message || 'Failed to schedule appointment',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
