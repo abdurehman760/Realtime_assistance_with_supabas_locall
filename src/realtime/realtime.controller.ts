@@ -14,7 +14,8 @@ export class RealtimeController {
   @Get('config')
   getConfig() {
     return {
-      keyExpirationTime: AI_CONFIG.realtime.keyExpirationTime
+      keyExpirationTime: AI_CONFIG.realtime.keyExpirationTime,
+      systemMessage: AI_CONFIG.realtime.systemMessage
     };
   }
 }
