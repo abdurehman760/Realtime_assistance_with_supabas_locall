@@ -264,14 +264,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 {
                   type: 'function',
-                  name: 'check_availability',
-                  description: 'Check available appointment slots for a given date',
+                  name: 'getBookedTimes', // Updated from check_availability
+                  description: 'Get all booked appointment times for a given date',
                   parameters: {
                     type: 'object',
                     properties: {
                       date: {
                         type: 'string',
-                        description: 'Date to check availability for (YYYY-MM-DD format)',
+                        description: 'Date to check booked times for (YYYY-MM-DD format)',
                       },
                     },
                     required: ['date'],
@@ -788,7 +788,7 @@ document.addEventListener('DOMContentLoaded', () => {
               });
             break;
   
-          case 'check_availability':
+          case 'getBookedTimes': // Updated from check_availability
             fetch('/appointments/booked-times')
               .then(response => response.json())
               .then(result => {
