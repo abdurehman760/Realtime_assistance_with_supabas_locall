@@ -18,6 +18,7 @@ export class AppointmentController {
   async getBookedTimes() {
     try {
       const bookedTimes = await this.appointmentService.getBookedTimes();
+      
       return {
         success: true,
         data: bookedTimes,
