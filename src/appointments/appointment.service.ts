@@ -67,8 +67,13 @@ export class AppointmentService {
         range,
       });
 
-      // Return array of booked datetime strings
-      return (response.data.values || []).map(([dateTime]) => dateTime);
+      // Extract booked datetime strings
+      const bookedTimes = (response.data.values || []).map(([dateTime]) => dateTime);
+
+      // Log the booked times
+      this.logger.log(`Booked times retrieved: ${JSON.stringify(bookedTimes)}`);
+
+      return bookedTimes;
     } catch (error) {
       this.logger.error(`Error fetching booked times: ${error.message}`);
       throw error;
