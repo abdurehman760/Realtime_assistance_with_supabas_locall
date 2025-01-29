@@ -78,12 +78,4 @@ export class ConfigService implements OnModuleInit {
       throw error;
     }
   }
-
-  async validateConfig(config: UpdateConfigDto) {
-    // Add any additional validation logic here
-    if (config.phoneFormat.maxDigits < config.phoneFormat.minDigits) {
-      throw new Error('Maximum digits cannot be less than minimum digits');
-    }
-    return true;
-  }
 }
