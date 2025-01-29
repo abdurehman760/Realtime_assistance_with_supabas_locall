@@ -6,8 +6,8 @@ interface AppointmentDto {
   dateTime: string;
   service: string;
   notes?: string;
-  phoneNumber?: string; // Add optional phone number
-  createdAt?: string; // Add optional createdAt field
+  phoneNumber?: string; 
+  createdAt?: string; 
 }
 
 @Controller('appointments')

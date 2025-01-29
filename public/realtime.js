@@ -10,6 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let audioContext; // AudioContext instance
     let analyser; // Audio analyser node
     let isRecording = false; // Recording state flag
+    let speechStartTime = null; // Add this for speech timing
+    let silenceTimer = null; // Add this for silence detection
+    let audioLevel = 0; // Add this for audio level tracking
+    let audioQueue = []; // Add this for audio queue
+    let isPlaying = false; // Add this for audio playback state
   
     // Timer related variables
     let keyExpirationTimer;
@@ -244,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
                       },
                       dateTime: {
                         type: 'string',
-                        description: 'Date and time for the appointment (format: YYYY-MM-DD HH:mm)',
+                        description: 'Appointment date and time (format: YYYY-MM-DD HH:mm)',
                       },
                       service: {
                         type: 'string',
@@ -734,7 +739,7 @@ document.addEventListener('DOMContentLoaded', () => {
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify(args),
+              body: JSON.stringify(args), // Use the datetime directly as provided by AI
             })
               .then((response) => response.json())
               .then((result) => {
@@ -749,7 +754,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         message: `Appointment scheduled successfully for ${args.patientName} on ${args.dateTime} for ${args.service}`,
                         appointmentDetails: {
                           patientName: args.patientName,
-                          dateTime: args.dateTime,
+                          appointmentTime: args.dateTime,
                           service: args.service,
                           notes: args.notes || '',
                         }

@@ -24,7 +24,7 @@ export class AppointmentService {
       // Define headers for the sheet
       const headers = [
         'Patient Name',
-        'Date Time',
+        'Appointment Time', // Changed from 'Date Time' to be more clear
         'Service',
         'Notes',
         'Phone Number',
@@ -55,20 +55,34 @@ export class AppointmentService {
       hour: '2-digit',
       minute: '2-digit',
       hour12: true
-    });
+    }).replace(',', '') 
+      .replace(' at ', ' at '); 
+  }
+
+  private formatTimeForSheet(dateTimeStr: string): string {
+    // Convert from "YYYY-MM-DD HH:mm" to "YYYY-MM-DD hh:mm AM/PM"
+    const [date, time] = dateTimeStr.split(' ');
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12; // Convert 24h to 12h format
+
+    return `${date} ${hour12}:${minutes} ${ampm}`;
   }
 
   public async getBookedTimes(): Promise<string[]> {
     try {
-      const range = 'Sheet1!B2:B'; // DateTime column
+      const range = 'Sheet1!B2:B'; // Appointment Time column
       
       const response = await this.sheets.spreadsheets.values.get({
         spreadsheetId: this.SPREADSHEET_ID,
         range,
       });
 
-      // Extract booked datetime strings
-      const bookedTimes = (response.data.values || []).map(([dateTime]) => dateTime);
+      // Convert times to 12-hour format
+      const bookedTimes = (response.data.values || []).map(([dateTime]) => 
+        this.formatTimeForSheet(dateTime)
+      );
 
       // Log the booked times
       this.logger.log(`Booked times retrieved: ${JSON.stringify(bookedTimes)}`);
@@ -88,6 +102,7 @@ export class AppointmentService {
     phoneNumber: string = '', // Add phone number parameter
   ) {
     try {
+      const formattedDateTime = this.formatTimeForSheet(dateTime);
       const range = 'Sheet1!A2:F2'; // Updated range to include phone number column
       const now = new Date();
       const createdAt = this.formatDate(now); // Format the date
@@ -95,7 +110,7 @@ export class AppointmentService {
       // Maintain column order matching headers
       const values = [[
         patientName,    // Column A: Patient Name
-        dateTime,       // Column B: Date Time
+        formattedDateTime, // Use formatted datetime
         service,        // Column C: Service
         notes,          // Column D: Notes
         phoneNumber,    // Column E: Phone Number
@@ -114,7 +129,7 @@ export class AppointmentService {
         ...response.data,
         appointmentDetails: {
           patientName,
-          dateTime,
+          dateTime: formattedDateTime,
           service,
           notes,
           phoneNumber,
