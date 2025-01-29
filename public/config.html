@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Configuration</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f7f7f7;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+            overflow-y: auto;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 95%;
+            margin: 20px auto;
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 28px;
+            font-weight: 500;
+            margin-bottom: 24px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 24px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .form-row {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #4dabf7;
+            box-shadow: 0 0 0 2px rgba(77, 171, 247, 0.2);
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .submit-container {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .submit-btn {
+            min-width: 200px;
+            padding: 12px 24px;
+            background: #228be6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .submit-btn:hover {
+            background: #1c7ed6;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            display: none;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .alert-success {
+            background: #d3f9d8;
+            border: 1px solid #8ce99a;
+            color: #2b8a3e;
+        }
+
+        .alert-error {
+            background: #ffe3e3;
+            border: 1px solid #ffa8a8;
+            color: #c92a2a;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 100%;
+                padding: 16px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .row {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .tooltip {
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: help;
+            color: #6c757d;
+        }
+
+        .tooltip:hover::after {
+            content: attr(data-tip);
+            position: absolute;
+            right: 24px;
+            top: -2px;
+            width: 200px;
+            padding: 8px;
+            border-radius: 4px;
+            background: #2c3e50;
+            color: white;
+            font-size: 12px;
+            z-index: 100;
+            line-height: 1.4;
+        }
+
+        .example-value {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 4px;
+        }
+
+        input::placeholder {
+            color: #adb5bd;
+            font-style: italic;
+        }
+
+        .input-hint {
+            display: block;
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 4px;
+        }
+
+        .last-updated {
+            text-align: right;
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 16px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Business Configuration</h1>
+        <div id="lastUpdated" class="last-updated"></div>
+        <div id="alertBox" class="alert"></div>
+        
+        <form id="configForm">
+            <div class="form-grid">
+                <div class="section">
+                    <div class="section-title">Basic Information</div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="businessType">Business Type</label>
+                            <span class="tooltip" data-tip="Enter the primary type of your business (e.g., dental clinic, medical office)">ⓘ</span>
+                            <input type="text" id="businessType" 
+                                   placeholder="e.g., dental clinic" 
+                                   required>
+                            <span class="example-value">Current example: dental clinic</span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="businessName">Business Name</label>
+                            <span class="tooltip" data-tip="Enter your business's official name as it should appear to customers">ⓘ</span>
+                            <input type="text" id="businessName" 
+                                   placeholder="e.g., Smile Dental Care" 
+                                   required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="businessSummary">Business Summary</label>
+                            <span class="tooltip" data-tip="Provide a brief description of your business and its main focus">ⓘ</span>
+                            <textarea id="businessSummary" 
+                                      placeholder="e.g., A modern dental practice providing comprehensive dental care with a focus on patient comfort and advanced technology."
+                                      required
+                                      rows="4"
+                                      style="width: 100%; resize: vertical;"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Operating Hours</div>
+                    <div class="row">
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label for="hoursStart">Opening Time</label>
+                                <span class="tooltip" data-tip="Select your business opening time (will be converted to AM/PM format)">ⓘ</span>
+                                <input type="time" id="hoursStart" required>
+                                <span class="input-hint">Will be displayed as: 9:00 AM</span>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label for="hoursEnd">Closing Time</label>
+                                <span class="tooltip" data-tip="Select your business closing time (will be converted to AM/PM format)">ⓘ</span>
+                                <input type="time" id="hoursEnd" required>
+                                <span class="input-hint">Will be displayed as: 5:00 PM</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="serviceDuration">Service Duration</label>
+                            <span class="tooltip" data-tip="Enter the standard duration for appointments (include 'minutes' in the value)">ⓘ</span>
+                            <input type="text" id="serviceDuration" 
+                                   placeholder="e.g., 60 minutes" 
+                                   required>
+                            <span class="example-value">Format: [number] minutes (e.g., 60 minutes)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Booking Settings</div>
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="advanceBookingMonths">Advance Booking Period (Months)</label>
+                            <span class="tooltip" data-tip="How many months in advance can customers book appointments? (1-12 months)">ⓘ</span>
+                            <input type="number" id="advanceBookingMonths" 
+                                   min="1" max="12" 
+                                   placeholder="e.g., 3" 
+                                   required>
+                            <span class="example-value">Enter a number between 1 and 12</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="submit-container">
+                <button type="submit" class="submit-btn" id="saveButton">
+                    Save Configuration
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const configForm = document.getElementById('configForm');
+        const saveButton = document.getElementById('saveButton');
+        const alertBox = document.getElementById('alertBox');
+        const lastUpdatedDiv = document.getElementById('lastUpdated');
+
+        // Load configuration
+        async function loadConfiguration() {
+            try {
+                const response = await fetch('/config');
+                if (!response.ok) throw new Error('Failed to load configuration');
+                
+                const config = await response.json();
+                
+                // Update last modified timestamp
+                if (config.lastUpdated) {
+                    lastUpdatedDiv.textContent = `Last updated: ${formatDate(config.lastUpdated)}`;
+                }
+
+                // Update form fields (excluding lastUpdated)
+                const { lastUpdated, ...configData } = config;
+                Object.entries(configData).forEach(([key, value]) => {
+                    try {
+                        if (key === 'businessHours') {
+                            if (value.start) {
+                                document.getElementById('hoursStart').value = convertTo24Hour(value.start);
+                            }
+                            if (value.end) {
+                                document.getElementById('hoursEnd').value = convertTo24Hour(value.end);
+                            }
+                        } else {
+                            const element = document.getElementById(key);
+                            if (element && value) element.value = value;
+                        }
+                    } catch (err) {
+                        console.error(`Error setting value for ${key}:`, err);
+                    }
+                });
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        }
+
+        // Fixed time conversion utilities
+        function convertTo24Hour(time12h) {
+            if (!time12h) return '';
+            
+            try {
+                const [time, modifier] = time12h.split(' ');
+                if (!time || !modifier) return '';
+
+                let [hours, minutes] = time.split(':');
+                hours = parseInt(hours);
+                
+                if (isNaN(hours)) return '';
+                
+                if (hours === 12) {
+                    hours = modifier === 'PM' ? 12 : 0;
+                } else if (modifier === 'PM') {
+                    hours += 12;
+                }
+                
+                return `${hours.toString().padStart(2, '0')}:${minutes}`;
+            } catch (error) {
+                console.error('Time conversion error:', error);
+                return '';
+            }
+        }
+
+        function convertTo12Hour(time24h) {
+            if (!time24h) return '';
+            
+            try {
+                const [hours, minutes] = time24h.split(':');
+                const hour = parseInt(hours);
+                
+                if (isNaN(hour)) return '';
+                
+                const ampm = hour >= 12 ? 'PM' : 'AM';
+                const hour12 = hour % 12 || 12;
+                
+                return `${hour12}:${minutes} ${ampm}`;
+            } catch (error) {
+                console.error('Time conversion error:', error);
+                return '';
+            }
+        }
+
+        // Form submission
+        configForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            saveButton.disabled = true;
+
+            try {
+                const formData = {
+                    businessType: document.getElementById('businessType').value,
+                    businessName: document.getElementById('businessName').value,
+                    businessSummary: document.getElementById('businessSummary').value,
+                    businessHours: {
+                        start: convertTo12Hour(document.getElementById('hoursStart').value),
+                        end: convertTo12Hour(document.getElementById('hoursEnd').value)
+                    },
+                    serviceDuration: document.getElementById('serviceDuration').value,
+                    advanceBookingMonths: parseInt(document.getElementById('advanceBookingMonths').value)
+                };
+
+                const response = await fetch('/config', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message);
+                }
+
+                const result = await response.json();
+                if (result.lastUpdated) {
+                    lastUpdatedDiv.textContent = `Last updated: ${formatDate(result.lastUpdated)}`;
+                }
+                showAlert('Configuration saved successfully!', 'success');
+            } catch (error) {
+                showAlert(error.message, 'error');
+            } finally {
+                saveButton.disabled = false;
+            }
+        });
+
+        function showAlert(message, type = 'success') {
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type}`;
+            alertBox.style.display = 'block';
+            setTimeout(() => alertBox.style.display = 'none', 5000);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+
+        // Load configuration on page load
+        document.addEventListener('DOMContentLoaded', loadConfiguration);
+    </script>
+</body>
+</html>

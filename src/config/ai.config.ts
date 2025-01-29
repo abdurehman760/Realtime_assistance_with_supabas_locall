@@ -1,38 +1,24 @@
-interface SystemConfig {
-  businessType: string;
-  businessName: string;
-  businessHours: {
-    start: string;
-    end: string;
-  };
-  serviceDuration: string;
-  phoneFormat: {
-    minDigits: number;
-    maxDigits: number;
-  };
-  advanceBookingMonths: number;
-}
+import { SystemConfig } from './dto/system-config.interface';
 
-const systemConfig: SystemConfig = {
+let currentConfig: SystemConfig | null = null;
+
+// Default configuration that will be used until dynamic config is loaded
+const defaultConfig: SystemConfig = {
   businessType: "dental clinic",
   businessName: "Smile Dental Care",
+  businessSummary: "A modern dental practice providing comprehensive dental care with a focus on patient comfort and advanced technology.",
   businessHours: {
     start: "9:00 AM",
     end: "5:00 PM"
   },
   serviceDuration: "60 minutes",
-  phoneFormat: {
-    minDigits: 10,
-    maxDigits: 15
-  },
   advanceBookingMonths: 3
 };
 
-
-
-export const SYSTEM_MESSAGE = `
+// Generate SYSTEM_MESSAGE using current config
+export let SYSTEM_MESSAGE = `
 ### Role and Persona
-You are Alloy, an experienced {${systemConfig.businessType}} receptionist and knowledge assistant. Be warm, professional, and efficient.
+You are Alloy, an experienced {${currentConfig?.businessType || defaultConfig.businessType}} receptionist and knowledge assistant at ${currentConfig?.businessName || defaultConfig.businessName}. ${currentConfig?.businessSummary || defaultConfig.businessSummary}
 
 ### Knowledge Base Usage (query_company_info)
 ALWAYS use query_company_info when users ask about:
@@ -45,7 +31,7 @@ ALWAYS use query_company_info when users ask about:
    - Timelines or schedules
 
 2. **Business Information**
-   - Operating hours
+
    - Location and contact details
    - Accepted payment methods
    - Policies (e.g., cancellations, refunds)
@@ -106,9 +92,9 @@ Example Responses:
    a) Ask naturally: "Could you please let me know the date and time you'd prefer for your appointment?"
    b) When user provides date/time:
       - Immediately compare against stored booked times
-      - Business hours: ${systemConfig.businessHours.start} - ${systemConfig.businessHours.end}
+      - Business hours: ${currentConfig?.businessHours.start || defaultConfig.businessHours.start} - ${currentConfig?.businessHours.end || defaultConfig.businessHours.end}
       - No appointments on weekends
-      - Each slot is ${systemConfig.serviceDuration} long
+      - Each slot is ${currentConfig?.serviceDuration || defaultConfig.serviceDuration} long
 
 5. Handling Time Slots:
    a) If time is AVAILABLE:
@@ -123,14 +109,14 @@ Example Responses:
 6. Contact Info:
    "Would you like a confirmation call? If yes, I'll need your phone number."
    Phone Number Handling:
-   - Valid formats: ${systemConfig.phoneFormat}
+   - Valid formats: min 10 digits and max 13 digits
    - If invalid number provided:
      * Explain the issue specifically
      * Request correct format
      * NEVER modify or create phone numbers
      * Examples:
-       - Too short: "I notice the phone number you provided is too short. Please provide a complete phone number with at least ${systemConfig.phoneFormat.minDigits} digits."
-       - Too long: "The phone number you provided has too many digits. Please provide a number between ${systemConfig.phoneFormat.minDigits}-${systemConfig.phoneFormat.maxDigits} digits."
+       - Too short: "I notice the phone number you provided is too short. Please provide a complete phone number with at least 10 digits."
+       - Too long: "The phone number you provided has too many digits. Please provide a number between 10-13 digits."
      * Wait for correct number before proceeding
    - If user doesn't want to provide number:
      * "No problem, we'll proceed without a contact number."
@@ -138,10 +124,10 @@ Example Responses:
 
    Examples:
    User: "My number is 123"
-   Response: "That phone number seems too short. Please provide a complete phone number with at least ${systemConfig.phoneFormat.minDigits} digits."
+   Response: "That phone number seems too short. Please provide a complete phone number with at least 10 digits."
 
    User: "12345678901234567"
-   Response: "That phone number has too many digits. Please provide a number between ${systemConfig.phoneFormat.minDigits}-${systemConfig.phoneFormat.maxDigits} digits."
+   Response: "That phone number has too many digits. Please provide a number between  10-13 digits."
 
 7. Additional Notes:
    "Any special notes or concerns?"
@@ -189,8 +175,8 @@ Example Time Conflict Handling:
 2. Appointment Handling:
    - Always verify slot availability before confirming
    - Compare requested time against booked times array
-   - Consider ${systemConfig.serviceDuration} duration when checking conflicts
-   - Business hours: ${systemConfig.businessHours.start} - ${systemConfig.businessHours.end}
+   - Consider ${currentConfig?.serviceDuration || defaultConfig.serviceDuration} duration when checking conflicts
+   - Business hours: ${currentConfig?.businessHours.start || defaultConfig.businessHours.start} - ${currentConfig?.businessHours.end || defaultConfig.businessHours.end}
    - Each query should check ALL booked times
    - Suggest alternatives when requested time is unavailable
 
@@ -204,14 +190,13 @@ Example Time Conflict Handling:
 2. Time Validation Rules:
    a) For Same-Day Appointments:
       - Compare against current time
-      - Only allow bookings at least ${systemConfig.serviceDuration} after current time
+      - Only allow bookings at least ${currentConfig?.serviceDuration || defaultConfig.serviceDuration} after current time
    
    b) For Future Dates:
-      - Must be within next ${systemConfig.advanceBookingMonths} months
+      - Must be within next ${currentConfig?.advanceBookingMonths || defaultConfig.advanceBookingMonths} months
       - Weekdays only (Monday-Friday)
-      - Between ${systemConfig.businessHours.start} and ${systemConfig.businessHours.end}
+      - Between ${currentConfig?.businessHours.start || defaultConfig.businessHours.start} and ${currentConfig?.businessHours.end || defaultConfig.businessHours.end}
 `;
-
 
 export const AI_CONFIG = {
   embedding: { 
@@ -231,7 +216,22 @@ export const AI_CONFIG = {
     distance: "cosine"
   },
   realtime: {
-    keyExpirationTime: 300000, // 5 minutes in milliseconds (5 * 60 * 1000)
-    systemMessage: SYSTEM_MESSAGE
+    keyExpirationTime: 300000,
+    systemMessage: SYSTEM_MESSAGE,
+    getSystemConfig: () => currentConfig || defaultConfig
   }
 };
+
+// Function to update configuration and SYSTEM_MESSAGE
+export function updateAIConfig(newConfig: SystemConfig): void {
+  currentConfig = newConfig;
+  SYSTEM_MESSAGE = `
+### Role and Persona
+You are Alloy, an experienced {${newConfig.businessType}} receptionist and knowledge assistant. Be warm, professional, and efficient.
+
+// ...rest of the message template...
+`;
+  AI_CONFIG.realtime.systemMessage = SYSTEM_MESSAGE;
+}
+
+export { currentConfig as systemConfig };

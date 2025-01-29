@@ -7,9 +7,13 @@ import { ManageVectorStoreModule } from './manage-vector-store/manage-vector-sto
 import { RealtimeModule } from './realtime/realtime.module';
 import { ContextModule } from './context/context.module';
 import { AppointmentsModule } from './appointments/appointment.module';
+import { ConfigModule } from './config/config.module';
+import { SupabaseModule } from './supabase/supabase.module';
 
 @Module({
   imports: [
+    ConfigModule,
+    SupabaseModule,
     PdfLoaderModule,
     VectorStoreModule,
     AudioModule,

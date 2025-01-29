@@ -1,67 +1,81 @@
-# Project Structure
+# System Configuration Setup Plan
 
+## 1. Database Setup
+
+```sql
+-- Create simple configuration table with updated schema
+CREATE TABLE system_config (
+    id SERIAL PRIMARY KEY,
+    value JSONB NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Create function to automatically update timestamp
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Create trigger to automatically update the updated_at column
+CREATE TRIGGER update_system_config_updated_at
+    BEFORE UPDATE ON system_config
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Insert initial configuration with updated structure
+INSERT INTO system_config (value) VALUES
+(
+    '{
+        "businessType": "dental clinic",
+        "businessName": "Smile Dental Care",
+        "businessSummary": "A modern dental practice providing comprehensive dental care with a focus on patient comfort and advanced technology.",
+        "businessHours": {
+            "start": "9:00 AM",
+            "end": "5:00 PM"
+        },
+        "serviceDuration": "60 minutes",
+        "advanceBookingMonths": 3
+    }'::jsonb
+);
+
+-- Verify trigger is working
+SELECT trigger_name, event_manipulation, event_object_table, action_statement
+FROM information_schema.triggers
+WHERE event_object_table = 'system_config';
 ```
-assistant-supabase/
-├── src/
-│   ├── audio/
-│   │   ├── audio.controller.ts
-│   │   ├── audio.module.ts
-│   │   └── audio.service.ts
-│   ├── config/
-│   │   ├── ai.config.ts
-│   │   └── responses.config.ts
-│   ├── manage-vector-store/
-│   │   ├── manage-vector-store.controller.ts
-│   │   ├── manage-vector-store.module.ts
-│   │   └── manage-vector-store.service.ts
-│   ├── pdf-loader/
-│   │   ├── pdf-loader.controller.ts
-│   │   ├── pdf-loader.module.ts
-│   │   └── pdf-loader.service.ts
-│   ├── vector-store/
-│   │   ├── vector-store.controller.ts
-│   │   ├── vector-store.module.ts
-│   │   └── vector-store.service.ts
-│   ├── app.controller.ts
-│   ├── app.module.ts
-│   ├── app.service.ts
-│   └── main.ts
-├── db/
-│   └── setup.sql
-├── public/
-│   ├── manage-vector-store.css
-│   ├── manage-vector-store.html
-│   └── manage-vector-store.js
-│   ├── styles.css
-│   ├── index.html
-│   └── script.js
-├── supabase/ locall supabasee etc
 
-├── uploads/
-│   └── (temporary PDF uploads)
-├── .env
-├── nest-cli.json
-├── package.json
-├── tsconfig.build.json
-└── tsconfig.json
+## 2. Frontend Setup
+
+### Create Configuration Admin Page
+```
+public/
+ ├── config.html        # Configuration management page and js and its styles in  file
+    
+   
 ```
 
-## Key Directories
+### Implementation Steps:
+1. Create simple form interface with fields:
+   - Business Type
+   - Business Name
+   - Operating Hours
+   - Service Duration
+   - Phone Format Settings
+   - Advance Booking Months
 
-- `src/`: Contains all the TypeScript source code
-  - `audio/`: Handles text-to-speech conversion
-  - `config/`: Configuration files for AI and responses
-  - `manage-vector-store/`: Vector store management endpoints
-  - `pdf-loader/`: PDF processing and loading
-  - `vector-store/`: Core vector store operations
+2. Add basic functionality:
+   - Load current configuration
+   - Update configuration
+   - Show success/error messages
+   - Basic validation
 
-- `db/`: Database setup and migrations
-- `frontend/`: Frontend assets and code
-- `public/`: Static files served by the application
-- `uploads/`: Temporary storage for uploaded PDFs
+3. Style requirements:
+   - Responsive design
+   - Clear form layout
+   - Validation feedback
+   - Loading states
 
-## Key Files
-
-- `.env`: Environment variables
-- `setup.sql`: Database schema and functions
-- `manage-vector-store.*`: Frontend interface for managing vector store
