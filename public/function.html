@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Function</title>
+  <style>
+    :root {
+      --primary-color: #2563eb;
+      --success-color: #16a34a;
+      --error-color: #dc2626;
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-color: #1e293b;
+      --border-color: #e2e8f0;
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 1rem;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(400px, 600px) 1fr;
+      gap: 2rem;
+      height: calc(100vh - 2rem);
+    }
+
+    .form-section {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      overflow-y: auto;
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    .tools-container {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      overflow-y: auto;
+      height: 100%;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+      color: var(--text-color);
+      text-align: center;
+    }
+
+    .button-group {
+      margin-bottom: 2rem;
+    }
+
+    .view-functions {
+      width: 100%;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .view-functions:hover {
+      opacity: 0.9;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 0.875rem;
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    .variable-group {
+      display: grid;
+      grid-template-columns: 2fr 1fr 2fr;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      align-items: start;
+    }
+
+    .variables-container {
+      background: var(--bg-color);
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    .add-variable {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .add-variable:hover {
+      opacity: 0.9;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: var(--success-color);
+      color: white;
+      border: none;
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .submit-btn:hover {
+      opacity: 0.9;
+    }
+
+    .message {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      text-align: center;
+    }
+
+    .message.success {
+      background: #dcfce7;
+      color: var(--success-color);
+    }
+
+    .message.error {
+      background: #fee2e2;
+      color: var(--error-color);
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 1rem;
+      }
+
+      .container {
+        padding: 1rem;
+      }
+
+      .variable-group {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .tools-container {
+      margin-top: 2rem;
+      border-top: 1px solid var(--border-color);
+      padding-top: 2rem;
+    }
+
+    .tool-card {
+      background: var(--bg-color);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .tool-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .tool-name {
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .tool-description {
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+    }
+
+    .parameters-title {
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .parameter-item {
+      background: white;
+      padding: 0.75rem;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .parameter-name {
+      font-weight: 500;
+      color: var(--primary-color);
+    }
+
+    .parameter-type {
+      color: var(--text-color);
+      opacity: 0.7;
+    }
+
+    .no-tools {
+      text-align: center;
+      color: var(--text-color);
+      opacity: 0.7;
+      padding: 2rem;
+    }
+
+    /* Add these new styles */
+    .raw-tools {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 1.5rem;
+      border-radius: 8px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      white-space: pre;
+      overflow-x: auto;
+      font-size: 14px;
+      line-height: 1.5;
+      flex-grow: 1;
+      margin-top: 1rem;
+    }
+
+    .tools-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .tools-title {
+      font-size: 1.5rem;
+      margin: 0;
+    }
+
+    .refresh-button {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: opacity 0.2s;
+    }
+
+    .refresh-button:hover {
+      opacity: 0.9;
+    }
+
+    @media (max-width: 1024px) {
+      .container {
+        grid-template-columns: 1fr;
+        height: auto;
+        gap: 1rem;
+      }
+
+      .form-section,
+      .tools-container {
+        height: auto;
+        max-height: 80vh;
+      }
+    }
+
+    .tools-container h2 {
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="form-section">
+      <h1>Create New Function</h1>
+      <form id="functionForm">
+        <!-- Function Name -->
+        <div class="form-group">
+          <label for="name">Function Name</label>
+          <input type="text" id="name" name="name" required>
+        </div>
+
+        <!-- Function Purpose -->
+        <div class="form-group">
+          <label for="purpose">Purpose</label>
+          <textarea id="purpose" name="purpose" rows="3" required></textarea>
+        </div>
+
+        <!-- Variables Section -->
+        <div class="variables-container">
+          <label>Variables</label>
+          <div id="variables">
+            <!-- Dynamic variable fields will be added here -->
+          </div>
+          <button type="button" class="add-variable" onclick="addVariable()">Add Variable</button>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="submit-btn">Create Function</button>
+      </form>
+
+      <!-- Message Display -->
+      <div id="message" class="message"></div>
+    </div>
+
+    <div class="tools-container">
+      <div class="tools-header">
+        <h2 class="tools-title">OpenAI Function Tools</h2>
+        <button class="refresh-button" onclick="viewFunctions()">
+          Refresh Tools
+        </button>
+      </div>
+      <pre id="toolsList" class="raw-tools"></pre>
+    </div>
+  </div>
+
+  <script>
+    // Add variable fields dynamically
+    function addVariable() {
+      const variablesContainer = document.getElementById('variables');
+      const variableGroup = document.createElement('div');
+      variableGroup.className = 'variable-group';
+
+      variableGroup.innerHTML = `
+        <input type="text" placeholder="Variable Name" required>
+        <select required>
+          <option value="text">Text</option>
+          <option value="email">Email</option>
+          <option value="number">Number</option>
+          <option value="boolean">Boolean</option>
+        </select>
+        <input type="text" placeholder="Reason" required>
+      `;
+
+      variablesContainer.appendChild(variableGroup);
+    }
+
+    // Handle form submission
+    document.getElementById('functionForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Get form data
+      const name = document.getElementById('name').value;
+      const purpose = document.getElementById('purpose').value;
+      const variableGroups = document.querySelectorAll('.variable-group');
+
+      // Build variables array
+      const variables = Array.from(variableGroups).map(group => {
+        const inputs = group.querySelectorAll('input, select');
+        return {
+          var_id: Math.random().toString(36).substring(7), // Generate random ID
+          var_name: inputs[0].value,
+          var_type: inputs[1].value,
+          var_reason: inputs[2].value,
+        };
+      });
+
+      // Prepare payload
+      const payload = {
+        name,
+        purpose,
+        variables,
+        is_active: true,
+      };
+
+      // Send POST request
+      try {
+        const response = await fetch('/functions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          showMessage('Function created successfully!', 'success');
+          // Automatically refresh the function list
+          await viewFunctions();
+        } else {
+          showMessage(`Error: ${result.error || 'Failed to create function'}`, 'error');
+        }
+      } catch (error) {
+        showMessage(`Error: ${error.message}`, 'error');
+      }
+    });
+
+    // Show message to user
+    function showMessage(message, type) {
+      const messageDiv = document.getElementById('message');
+      messageDiv.textContent = message;
+      messageDiv.className = `message ${type}`;
+    }
+
+    // Add new function to fetch and view functions
+    async function viewFunctions() {
+      try {
+        const response = await fetch('/functions', {
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch functions');
+        }
+        
+        const tools = await response.json();
+        const toolsList = document.getElementById('toolsList');
+        
+        if (tools.length === 0) {
+          toolsList.textContent = 'No functions found';
+          return;
+        }
+
+        // Format the JSON with indentation
+        const formattedJson = JSON.stringify(tools, null, 2);
+        toolsList.textContent = formattedJson;
+        
+        showMessage(`${tools.length} functions loaded`, 'success');
+      } catch (error) {
+        console.error('Error:', error);
+        showMessage(`Error: ${error.message}`, 'error');
+      }
+    }
+  </script>
+</body>
+</html>
