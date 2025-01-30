@@ -4,300 +4,82 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Business Configuration</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: #f7f7f7;
-            min-height: 100vh;
-            padding: 20px;
-            margin: 0;
-            overflow-y: auto;
-        }
-
-        .container {
-            max-width: 1200px;
-            width: 95%;
-            margin: 20px auto;
-            background: white;
-            padding: 24px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            overflow-y: auto;
-        }
-
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            font-size: 28px;
-            font-weight: 500;
-            margin-bottom: 24px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-            gap: 24px;
-        }
-
-        .section {
-            background: #f8f9fa;
-            border-radius: 6px;
-            padding: 20px;
-        }
-
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 16px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #e9ecef;
-        }
-
-        .form-row {
-            margin-bottom: 16px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            color: #495057;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            font-size: 14px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #4dabf7;
-            box-shadow: 0 0 0 2px rgba(77, 171, 247, 0.2);
-        }
-
-        .row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        .submit-container {
-            text-align: center;
-            padding: 20px 0;
-        }
-
-        .submit-btn {
-            min-width: 200px;
-            padding: 12px 24px;
-            background: #228be6;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .submit-btn:hover {
-            background: #1c7ed6;
-        }
-
-        .alert {
-            padding: 12px 16px;
-            border-radius: 4px;
-            margin-bottom: 16px;
-            display: none;
-            font-size: 14px;
-            text-align: center;
-        }
-
-        .alert-success {
-            background: #d3f9d8;
-            border: 1px solid #8ce99a;
-            color: #2b8a3e;
-        }
-
-        .alert-error {
-            background: #ffe3e3;
-            border: 1px solid #ffa8a8;
-            color: #c92a2a;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                width: 100%;
-                padding: 16px;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .row {
-                grid-template-columns: 1fr;
-            }
-
-            h1 {
-                font-size: 24px;
-            }
-        }
-
-        .input-group {
-            position: relative;
-        }
-
-        .tooltip {
-            position: absolute;
-            right: -20px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: help;
-            color: #6c757d;
-        }
-
-        .tooltip:hover::after {
-            content: attr(data-tip);
-            position: absolute;
-            right: 24px;
-            top: -2px;
-            width: 200px;
-            padding: 8px;
-            border-radius: 4px;
-            background: #2c3e50;
-            color: white;
-            font-size: 12px;
-            z-index: 100;
-            line-height: 1.4;
-        }
-
-        .example-value {
-            font-size: 12px;
-            color: #6c757d;
-            margin-top: 4px;
-        }
-
-        input::placeholder {
-            color: #adb5bd;
-            font-style: italic;
-        }
-
-        .input-hint {
-            display: block;
-            font-size: 12px;
-            color: #6c757d;
-            margin-top: 4px;
-        }
-
-        .last-updated {
-            text-align: right;
-            color: #6c757d;
-            font-size: 14px;
-            margin-bottom: 16px;
-            font-style: italic;
-        }
-    </style>
+<link rel="stylesheet" href="config.css">
 </head>
 <body>
     <div class="container">
-        <h1>Business Configuration</h1>
-        <div id="lastUpdated" class="last-updated"></div>
         <div id="alertBox" class="alert"></div>
         
-        <form id="configForm">
-            <div class="form-grid">
-                <div class="section">
-                    <div class="section-title">Basic Information</div>
-                    <div class="form-row">
-                        <div class="input-group">
-                            <label for="businessType">Business Type</label>
-                            <span class="tooltip" data-tip="Enter the primary type of your business (e.g., dental clinic, medical office)">ⓘ</span>
-                            <input type="text" id="businessType" 
-                                   placeholder="e.g., dental clinic" 
-                                   required>
-                            <span class="example-value">Current example: dental clinic</span>
-                        </div>
+        <form id="configForm" class="form-grid">
+            <div class="section">
+                <h1>Business Configuration</h1>
+                <div id="lastUpdated" class="last-updated"></div>
+                <div class="section-divider"></div>
+                <div class="form-group">
+                    <label for="businessName">Business Name</label>
+                    <input type="text" id="businessName" 
+                           placeholder="e.g., Smile Dental Care" 
+                           required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="businessType">Business Type</label>
+                    <input type="text" id="businessType" 
+                           placeholder="e.g., dental clinic" 
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="businessSummary">Business Summary (20-100 words)</label>
+                    <span class="tooltip" data-tip="Provide a concise description of your business, services, and unique value proposition (between 20 and 100 words)">ⓘ</span>
+                    <textarea id="businessSummary" 
+                            placeholder="Provide a clear, concise description of your business (20-100 words)..."
+                            required
+                            onInput="validateSummary(this)"></textarea>
+                    <div class="word-count">
+                        Words: <span id="wordCount">0</span> (20-100 words)
                     </div>
-                    <div class="form-row">
-                        <div class="input-group">
-                            <label for="businessName">Business Name</label>
-                            <span class="tooltip" data-tip="Enter your business's official name as it should appear to customers">ⓘ</span>
-                            <input type="text" id="businessName" 
-                                   placeholder="e.g., Smile Dental Care" 
-                                   required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="input-group">
-                            <label for="businessSummary">Business Summary</label>
-                            <span class="tooltip" data-tip="Provide a brief description of your business and its main focus">ⓘ</span>
-                            <textarea id="businessSummary" 
-                                      placeholder="e.g., A modern dental practice providing comprehensive dental care with a focus on patient comfort and advanced technology."
-                                      required
-                                      rows="4"
-                                      style="width: 100%; resize: vertical;"></textarea>
-                        </div>
+                    <div class="error-feedback" style="color: #dc3545; display: none;"></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="hoursStart">Opening Time</label>
+                        <span class="tooltip" data-tip="Select your business opening time (will be converted to AM/PM format)">ⓘ</span>
+                        <input type="time" id="hoursStart" required onInput="updateTimeHint(this, 'startTimeHint')">
+                        <span class="input-hint" id="startTimeHint">Select opening time</span>
                     </div>
                 </div>
 
-                <div class="section">
-                    <div class="section-title">Operating Hours</div>
-                    <div class="row">
-                        <div class="form-row">
-                            <div class="input-group">
-                                <label for="hoursStart">Opening Time</label>
-                                <span class="tooltip" data-tip="Select your business opening time (will be converted to AM/PM format)">ⓘ</span>
-                                <input type="time" id="hoursStart" required>
-                                <span class="input-hint">Will be displayed as: 9:00 AM</span>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="input-group">
-                                <label for="hoursEnd">Closing Time</label>
-                                <span class="tooltip" data-tip="Select your business closing time (will be converted to AM/PM format)">ⓘ</span>
-                                <input type="time" id="hoursEnd" required>
-                                <span class="input-hint">Will be displayed as: 5:00 PM</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="input-group">
-                            <label for="serviceDuration">Service Duration</label>
-                            <span class="tooltip" data-tip="Enter the standard duration for appointments (include 'minutes' in the value)">ⓘ</span>
-                            <input type="text" id="serviceDuration" 
-                                   placeholder="e.g., 60 minutes" 
-                                   required>
-                            <span class="example-value">Format: [number] minutes (e.g., 60 minutes)</span>
-                        </div>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="hoursEnd">Closing Time</label>
+                        <span class="tooltip" data-tip="Select your business closing time (will be converted to AM/PM format)">ⓘ</span>
+                        <input type="time" id="hoursEnd" required onInput="updateTimeHint(this, 'endTimeHint')">
+                        <span class="input-hint" id="endTimeHint">Select closing time</span>
                     </div>
                 </div>
 
-                <div class="section">
-                    <div class="section-title">Booking Settings</div>
-                    <div class="form-row">
-                        <div class="input-group">
-                            <label for="advanceBookingMonths">Advance Booking Period (Months)</label>
-                            <span class="tooltip" data-tip="How many months in advance can customers book appointments? (1-12 months)">ⓘ</span>
-                            <input type="number" id="advanceBookingMonths" 
-                                   min="1" max="12" 
-                                   placeholder="e.g., 3" 
-                                   required>
-                            <span class="example-value">Enter a number between 1 and 12</span>
-                        </div>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="serviceDuration">Service Duration</label>
+                        <span class="tooltip" data-tip="Enter the standard duration for appointments (include 'minutes' in the value)">ⓘ</span>
+                        <input type="text" id="serviceDuration" 
+                               placeholder="e.g., 60 minutes" 
+                               required>
+                        <span class="example-value">Format: [number] minutes (e.g., 60 minutes)</span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="advanceBookingMonths">Future Booking Window (Months)</label>
+                        <span class="tooltip" data-tip="Set how far in advance clients can book appointments. For example, if set to 2 months, clients can only book appointments up to 2 months from today's date.">ⓘ</span>
+                        <input type="number" id="advanceBookingMonths" 
+                               min="1" max="12" 
+                               placeholder="e.g., 2" 
+                               required>
+                        <span class="example-value">Allows bookings up to this many months in advance (1-12 months)</span>
                     </div>
                 </div>
             </div>
@@ -348,6 +130,19 @@
                         console.error(`Error setting value for ${key}:`, err);
                     }
                 });
+
+                // Add this after loading the summary
+                if (document.getElementById('businessSummary').value) {
+                    validateSummary(document.getElementById('businessSummary'));
+                }
+
+                // Add this after setting the time values
+                if (document.getElementById('hoursStart').value) {
+                    updateTimeHint(document.getElementById('hoursStart'), 'startTimeHint');
+                }
+                if (document.getElementById('hoursEnd').value) {
+                    updateTimeHint(document.getElementById('hoursEnd'), 'endTimeHint');
+                }
             } catch (error) {
                 showAlert(error.message, 'error');
             }
@@ -400,6 +195,15 @@
 
         // Form submission
         configForm.addEventListener('submit', async (e) => {
+            const summary = document.getElementById('businessSummary');
+            const wordCount = summary.value.trim().split(/\s+/).filter(word => word.length > 0).length;
+            
+            if (wordCount < 20 || wordCount > 100) {
+                e.preventDefault();
+                showAlert('Business summary must be between 20 and 100 words', 'error');
+                return;
+            }
+
             e.preventDefault();
             saveButton.disabled = true;
 
@@ -456,6 +260,41 @@
                 minute: '2-digit',
                 hour12: true
             });
+        }
+
+        function validateSummary(textarea) {
+            const wordCount = textarea.value.trim().split(/\s+/).filter(word => word.length > 0).length;
+            const wordCountElement = document.getElementById('wordCount');
+            const errorFeedback = textarea.parentElement.querySelector('.error-feedback');
+            const submitButton = document.getElementById('saveButton');
+            
+            wordCountElement.textContent = wordCount;
+            
+            if (wordCount < 20) {
+                errorFeedback.textContent = 'Please provide at least 20 words';
+                errorFeedback.style.display = 'block';
+                textarea.classList.add('invalid');
+                submitButton.disabled = true;
+            } else if (wordCount > 100) {
+                errorFeedback.textContent = 'Please keep the summary under 100 words';
+                errorFeedback.style.display = 'block';
+                textarea.classList.add('invalid');
+                submitButton.disabled = true;
+            } else {
+                errorFeedback.style.display = 'none';
+                textarea.classList.remove('invalid');
+                submitButton.disabled = false;
+            }
+        }
+
+        function updateTimeHint(input, hintId) {
+            const hint = document.getElementById(hintId);
+            if (input.value) {
+                const time12h = convertTo12Hour(input.value);
+                hint.textContent = `Will be displayed as: ${time12h}`;
+            } else {
+                hint.textContent = 'Select time';
+            }
         }
 
         // Load configuration on page load
