@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let audioLevel = 0; // Add this for audio level tracking
     let audioQueue = []; // Add this for audio queue
     let isPlaying = false; // Add this for audio playback state
+    let currentContext = null; // Add this for storing current context information
   
     // Timer related variables
     let keyExpirationTimer;
@@ -562,6 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
       function checkAudioLevel() {
         if (!isRecording) {
+          resetLevelBar(); // Reset the level bar when not recording
           requestAnimationFrame(checkAudioLevel);
           return;
         }
@@ -623,10 +625,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   
+    function resetLevelBar() {
+      const levelBar = pushToTalkBtn.querySelector('.level-bar');
+      if (levelBar) {
+        levelBar.style.height = '0%';
+      }
+    }
+  
     function endRecording() {
       if (!isVADMode && isRecording && dc && dc.readyState === 'open') {
         isRecording = false;
         pushToTalkBtn.classList.remove('recording');
+        resetLevelBar(); // Reset the level bar when recording ends
   
         // Disable the audio track when not recording
         if (audioStream) {
