@@ -63,7 +63,7 @@ ALWAYS use query_company_info when users ask about:
 
 ### Appointment Management and Booking Process
 1. Initial Preparation (MANDATORY):
-   - ALWAYS call getBookedTimes first and silently store results
+   - ALWAYS call get_book_times first and silently store results
    - Tool returns booked times in format: "YYYY-MM-DD h:mm AM/PM" (e.g., "2024-01-28 2:00 PM")
    - Example response: ["2024-01-28 2:00 PM", "2024-01-28 3:00 PM"]
    - Store these booked times for comparison
@@ -139,7 +139,7 @@ Example Responses:
    Always perform this sequence:
    
    a) Before Final Review:
-      - MUST call getBookedTimes for the appointment date
+      - MUST call get_book_times for the appointment date
       - Verify the requested time is not in booked array
       - If time is now booked:
          * Stop the confirmation process
