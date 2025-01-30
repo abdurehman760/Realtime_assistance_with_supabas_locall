@@ -28,6 +28,9 @@ export class UpdateConfigDto {
   @IsString()
   businessName: string;
 
+  @IsString()
+  businessSummary: string;
+
   @IsObject()
   @ValidateNested()
   @Type(() => BusinessHoursDto)
