@@ -9,6 +9,7 @@ import { ContextModule } from './context/context.module';
 import { AppointmentsModule } from './appointments/appointment.module';
 import { ConfigModule } from './config/config.module';
 import { SupabaseModule } from './supabase/supabase.module';
+import { FunctionHandlerModule } from './function-handler/function-handler.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { SupabaseModule } from './supabase/supabase.module';
     RealtimeModule,
     ContextModule,
     AppointmentsModule,
+    FunctionHandlerModule,
   ],
   controllers: [],
   providers: [],
