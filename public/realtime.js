@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 {
                   type: 'function',
-                  name: 'getBookedTimes', // Updated from check_availability
+                  name: 'get_book_times', // Updated from check_availability
                   description: 'Get all booked appointment times for a given date',
                   parameters: {
                     type: 'object',
@@ -803,7 +803,7 @@ document.addEventListener('DOMContentLoaded', () => {
               });
             break;
   
-          case 'getBookedTimes': // Updated from check_availability
+          case 'get_book_times': // Updated from check_availability
             fetch('/appointments/booked-times')
               .then(response => response.json())
               .then(result => {
