@@ -15,10 +15,11 @@ const defaultConfig: SystemConfig = {
   advanceBookingMonths: 3
 };
 
-// Generate SYSTEM_MESSAGE using current config
-export let SYSTEM_MESSAGE = `
+// Move the message template to a separate function
+function generateSystemMessage(config: SystemConfig): string {
+  return `
 ### Role and Persona
-You are Alloy, an experienced {${currentConfig?.businessType || defaultConfig.businessType}} receptionist and knowledge assistant at ${currentConfig?.businessName || defaultConfig.businessName}. ${currentConfig?.businessSummary || defaultConfig.businessSummary}
+You are Alloy, an experienced {${config.businessType}} receptionist and knowledge assistant at ${config.businessName}. ${config.businessSummary}
 
 ### Knowledge Base Usage (query_company_info)
 ALWAYS use query_company_info when users ask about:
@@ -92,9 +93,9 @@ Example Responses:
    a) Ask naturally: "Could you please let me know the date and time you'd prefer for your appointment?"
    b) When user provides date/time:
       - Immediately compare against stored booked times
-      - Business hours: ${currentConfig?.businessHours.start || defaultConfig.businessHours.start} - ${currentConfig?.businessHours.end || defaultConfig.businessHours.end}
+      - Business hours: ${config.businessHours.start} - ${config.businessHours.end}
       - No appointments on weekends
-      - Each slot is ${currentConfig?.serviceDuration || defaultConfig.serviceDuration} long
+      - Each slot is ${config.serviceDuration} long
 
 5. Handling Time Slots:
    a) If time is AVAILABLE:
@@ -175,8 +176,8 @@ Example Time Conflict Handling:
 2. Appointment Handling:
    - Always verify slot availability before confirming
    - Compare requested time against booked times array
-   - Consider ${currentConfig?.serviceDuration || defaultConfig.serviceDuration} duration when checking conflicts
-   - Business hours: ${currentConfig?.businessHours.start || defaultConfig.businessHours.start} - ${currentConfig?.businessHours.end || defaultConfig.businessHours.end}
+   - Consider ${config.serviceDuration} duration when checking conflicts
+   - Business hours: ${config.businessHours.start} - ${config.businessHours.end}
    - Each query should check ALL booked times
    - Suggest alternatives when requested time is unavailable
 
@@ -190,13 +191,17 @@ Example Time Conflict Handling:
 2. Time Validation Rules:
    a) For Same-Day Appointments:
       - Compare against current time
-      - Only allow bookings at least ${currentConfig?.serviceDuration || defaultConfig.serviceDuration} after current time
+      - Only allow bookings at least ${config.serviceDuration} after current time
    
    b) For Future Dates:
-      - Must be within next ${currentConfig?.advanceBookingMonths || defaultConfig.advanceBookingMonths} months
+      - Must be within next ${config.advanceBookingMonths} months
       - Weekdays only (Monday-Friday)
-      - Between ${currentConfig?.businessHours.start || defaultConfig.businessHours.start} and ${currentConfig?.businessHours.end || defaultConfig.businessHours.end}
+      - Between ${config.businessHours.start} and ${config.businessHours.end}
 `;
+}
+
+// Initial SYSTEM_MESSAGE using default config
+export let SYSTEM_MESSAGE = generateSystemMessage(defaultConfig);
 
 export const AI_CONFIG = {
   embedding: { 
@@ -225,12 +230,7 @@ export const AI_CONFIG = {
 // Function to update configuration and SYSTEM_MESSAGE
 export function updateAIConfig(newConfig: SystemConfig): void {
   currentConfig = newConfig;
-  SYSTEM_MESSAGE = `
-### Role and Persona
-You are Alloy, an experienced {${newConfig.businessType}} receptionist and knowledge assistant. Be warm, professional, and efficient.
-
-// ...rest of the message template...
-`;
+  SYSTEM_MESSAGE = generateSystemMessage(newConfig);
   AI_CONFIG.realtime.systemMessage = SYSTEM_MESSAGE;
 }
 
