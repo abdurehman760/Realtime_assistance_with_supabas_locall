@@ -46,7 +46,7 @@
                     <div class="input-group">
                         <label for="hoursStart">Opening Time</label>
                         <span class="tooltip" data-tip="Select your business opening time (will be converted to AM/PM format)">ⓘ</span>
-                        <input type="time" id="hoursStart" required onInput="updatetimeHint(this, 'startTimeHint')">
+                        <input type="time" id="hoursStart" required onInput="updateTimeHint(this, 'startTimeHint')">
                         <span class="input-hint" id="startTimeHint">Select opening time</span>
                     </div>
                 </div>
@@ -55,7 +55,7 @@
                     <div class="input-group">
                         <label for="hoursEnd">Closing Time</label>
                         <span class="tooltip" data-tip="Select your business closing time (will be converted to AM/PM format)">ⓘ</span>
-                        <input type="time" id="hoursEnd" required onInput="updatetimeHint(this, 'endTimeHint')">
+                        <input type="time" id="hoursEnd" required onInput="updateTimeHint(this, 'endTimeHint')">
                         <span class="input-hint" id="endTimeHint">Select closing time</span>
                     </div>
                 </div>
@@ -138,10 +138,10 @@
 
                 // Add this after setting the time values
                 if (document.getElementById('hoursStart').value) {
-                    updatetimeHint(document.getElementById('hoursStart'), 'startTimeHint');
+                    updateTimeHint(document.getElementById('hoursStart'), 'startTimeHint');
                 }
                 if (document.getElementById('hoursEnd').value) {
-                    updatetimeHint(document.getElementById('hoursEnd'), 'endTimeHint');
+                    updateTimeHint(document.getElementById('hoursEnd'), 'endTimeHint');
                 }
             } catch (error) {
                 showAlert(error.message, 'error');
@@ -287,7 +287,7 @@
             }
         }
 
-        function updatetimeHint(input, hintId) {
+        function updateTimeHint(input, hintId) {
             const hint = document.getElementById(hintId);
             if (input.value) {
                 const time12h = convertTo12Hour(input.value);
