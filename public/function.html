@@ -405,7 +405,7 @@
 
       // Send POST request
       try {
-        const response = await fetch('/functions', {
+        const response = await fetch('/tools', { // Changed from '/functions'
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -437,7 +437,7 @@
     // Add new function to fetch and view functions
     async function viewFunctions() {
       try {
-        const response = await fetch('/functions', {
+        const response = await fetch('/tools', { // Changed from '/functions'
           headers: {
             'Cache-Control': 'no-cache',
             'Pragma': 'no-cache'

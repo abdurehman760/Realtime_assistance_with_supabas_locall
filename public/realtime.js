@@ -161,11 +161,19 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingIndicator.classList.remove('hidden'); // Show loading
         initAudioContext();
   
-        // Fetch config first
-        const configResponse = await fetch('/realtime/config');
-        const config = await configResponse.json();
+        // Fetch config and tools in parallel
+        const [configResponse, toolsResponse] = await Promise.all([
+          fetch('/realtime/config'),
+          fetch('/tools')  // Changed from '/functions'
+        ]);
+    
+        const [config, tools] = await Promise.all([
+          configResponse.json(),
+          toolsResponse.json()
+        ]);
+    
         keyExpirationTime = config.keyExpirationTime;
-        const systemMessage = config.systemMessage; // Get system message from config
+        const systemMessage = config.systemMessage;
   
         // Calculate expiration timestamp
         const expirationTime = Date.now() + keyExpirationTime;
@@ -220,70 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   }
                 : null,
               temperature: 0.6,
-              tools: [
-                {
-                  type: 'function',
-                  name: 'query_company_info',
-                  description:
-                    'Search through company knowledge base for relevant information',
-                  parameters: {
-                    type: 'object',
-                    properties: {
-                      query: {
-                        type: 'string',
-                        description: 'The search query about company information',
-                      },
-                    },
-                    required: ['query'],
-                  },
-                },
-                {
-                  type: 'function',
-                  name: 'schedule_appointment',
-                  description: 'Schedule a new appointment/meeting',
-                  parameters: {
-                    type: 'object',
-                    properties:     {
-                      name: {
-                        type: 'string',
-                        description: 'Full name of the Patient/client/customer '
-                      },
-                      datetime: {
-                        type: 'string',
-                        description: 'The scheduled appointment date and time'
-                      },
-                      service: {
-                        type: 'string',
-                        description: 'Type of service required'
-                      },
-                      phoneNumber: {
-                        type: 'string',
-                        description: 'Optional contact number for confirmation'
-                      },
-                      notes: {
-                        type: 'string',
-                        description: 'Any additional instructions or comments'
-                      }
-                    },
-                    required: ['name', 'datetime', 'service', 'phoneNumber', 'notes']
-                  }
-                },
-                {
-                  type: 'function',
-                  name: 'get_book_times', // Updated from check_availability
-                  description: 'Get all booked appointment times for a given date',
-                  parameters: {
-                    type: 'object',
-                    properties: {
-                      date: {
-                        type: 'string',
-                        description: 'Date to check booked times for (YYYY-MM-DD format)',
-                      },
-                    },
-                    required: ['date'],
-                  },
-                },
-              ],
+              tools: tools, // Use dynamically fetched tools
               tool_choice: 'auto',
             },
           };

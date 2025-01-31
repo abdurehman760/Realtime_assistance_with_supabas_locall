@@ -4,7 +4,7 @@ import { OpenAI } from 'openai';
 import { CreateFunctionDto } from './dto/types';
 
 
-@Controller('functions')
+@Controller('tools') // Changed from 'functions'
 export class FunctionHandlerController {
   constructor(private readonly functionHandler: FunctionHandlerService) {}
 
