@@ -456,9 +456,31 @@
           return;
         }
 
-        // Format the JSON with indentation
-        const formattedJson = JSON.stringify(tools, null, 2);
-        toolsList.textContent = formattedJson;
+        // Format tools in the desired structure
+        const formattedOutput = tools.map(tool => {
+          // Access properties directly without the 'function' wrapper
+          const name = tool.function?.name || tool.name;
+          const description = tool.function?.description || tool.description;
+          const parameters = tool.function?.parameters || tool.parameters;
+          
+          return `{
+  type: 'function',
+  name: '${name}',
+  description: '${description}',
+  parameters: {
+    type: 'object',
+    properties: ${JSON.stringify(parameters.properties, null, 2)
+      .replace(/"([^"]+)":/g, '$1:')
+      .replace(/"/g, "'")
+      .split('\n')
+      .map(line => '    ' + line)
+      .join('\n')},
+    required: [${parameters.required.map(r => `'${r}'`).join(', ')}]
+  }
+}`
+        }).join(',\n\n');
+
+        toolsList.textContent = `[\n${formattedOutput}\n]`;
         
         showMessage(`${tools.length} functions loaded`, 'success');
       } catch (error) {
