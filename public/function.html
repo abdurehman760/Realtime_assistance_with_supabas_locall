@@ -464,20 +464,20 @@
           const parameters = tool.function?.parameters || tool.parameters;
           
           return `{
-  type: 'function',
-  name: '${name}',
-  description: '${description}',
-  parameters: {
-    type: 'object',
-    properties: ${JSON.stringify(parameters.properties, null, 2)
-      .replace(/"([^"]+)":/g, '$1:')
-      .replace(/"/g, "'")
-      .split('\n')
-      .map(line => '    ' + line)
-      .join('\n')},
-    required: [${parameters.required.map(r => `'${r}'`).join(', ')}]
-  }
-}`
+            type: 'function',
+            name: '${name}',
+            description: '${description}',
+            parameters: {
+              type: 'object',
+              properties: ${JSON.stringify(parameters.properties, null, 2)
+                .replace(/"([^"]+)":/g, '$1:')
+                .replace(/"/g, "'")
+                .split('\n')
+                .map(line => '    ' + line)
+                .join('\n')},
+              required: [${parameters.required.map(r => `'${r}'`).join(', ')}]
+            }
+          }`
         }).join(',\n\n');
 
         toolsList.textContent = `[\n${formattedOutput}\n]`;
