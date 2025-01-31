@@ -54,8 +54,9 @@ export class FunctionHandlerService implements OnModuleInit {
       console.log('\nFunctions Updated');
       console.log('--------------------------');
       console.log('Total active functions:', this.cachedTools.length);
-      this.cachedTools.forEach((tool, index) => {
-        console.log(`\nFunction ${index + 1}:`, tool.function.name);
+      this.cachedTools.forEach((tool: any, index) => { // Add type annotation to allow any property access
+        const functionName = tool.name || tool.function?.name; // Handle both formats
+        console.log(`\nFunction ${index + 1}:`, functionName);
       });
       console.log('--------------------------');
     } catch (error) {
@@ -104,15 +105,54 @@ export class FunctionHandlerService implements OnModuleInit {
   /**
    * Transforms a Supabase function into an OpenAI-compatible tool.
    */
-  private transformFunction(fn: SupabaseFunction): OpenAI.ChatCompletionTool {
-    return {
-      type: "function" as const,
-      function: {
-        name: this.toSnakeCase(fn.name),
-        description: fn.purpose,
-        parameters: this.buildParameters(fn.variables),
-      },
+  private transformFunction(fn: SupabaseFunction): any {
+    const transformedTool = {
+      type: 'function',
+      name: this.toSnakeCase(fn.name),
+      description: fn.purpose,
+      parameters: this.buildParameters(fn.variables)
     };
+
+    console.log('\n🔄 Transformed to OpenAI Tool:');
+    console.dir(transformedTool, { depth: null });
+
+    return transformedTool;
+  }
+
+  private buildParameters(variables: any[]): any {
+    const schema = {
+      type: 'object',
+      properties: {} as Record<string, any>,
+      required: [] as string[]
+    };
+
+    variables.forEach((variable) => {
+      // Convert var_name to camelCase
+      const propertyName = this.toCamelCase(variable.var_name);
+      schema.properties[propertyName] = {
+        type: this.mapType(variable.var_type),
+        description: variable.var_reason
+      };
+
+      if (variable.var_type === 'email') {
+        schema.properties[propertyName].format = 'email';
+      }
+
+      schema.required.push(propertyName);
+    });
+
+    return schema;
+  }
+
+  /**
+   * Converts a string to camelCase.
+   * Handles spaces, hyphens, and underscores.
+   */
+  private toCamelCase(str: string): string {
+    return str
+      .toLowerCase()
+      .replace(/[^a-zA-Z0-9]+(.)/g, (_, chr) => chr.toUpperCase())
+      .replace(/^[A-Z]/, c => c.toLowerCase()); // Ensure first character is lowercase
   }
 
   /**
@@ -125,34 +165,6 @@ export class FunctionHandlerService implements OnModuleInit {
       .replace(/[^a-z0-9]+/g, '_') // Replace any non-alphanumeric characters with underscore
       .replace(/^_+|_+$/g, '') // Remove leading and trailing underscores
       .replace(/_+/g, '_'); // Replace multiple underscores with single underscore
-  }
-
-  /**
-   * Builds JSON Schema parameters from Supabase variables.
-   */
-  private buildParameters(variables: any[]): any {
-    const properties = {};
-    const required = [];
-
-    variables.forEach((variable) => {
-      properties[variable.var_name] = {
-        type: this.mapType(variable.var_type),
-        description: variable.var_reason,
-      };
-
-      // Add format for special types (e.g., email)
-      if (variable.var_type === 'email') {
-        properties[variable.var_name].format = 'email';
-      }
-
-      required.push(variable.var_name);
-    });
-
-    return {
-      type: 'object',
-      properties,
-      required,
-    };
   }
 
   /**
