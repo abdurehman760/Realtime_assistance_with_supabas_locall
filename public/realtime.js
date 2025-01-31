@@ -240,33 +240,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 {
                   type: 'function',
                   name: 'schedule_appointment',
-                  description: 'Schedule a new dental appointment',
+                  description: 'Schedule a new appointment/meeting',
                   parameters: {
                     type: 'object',
-                    properties: {
-                      patientName: {
+                    properties:     {
+                      name: {
                         type: 'string',
-                        description: 'Full name of the patient',
+                        description: 'Full name of the Patient/client/customer '
                       },
-                      dateTime: {
+                      datetime: {
                         type: 'string',
-                        description: 'Appointment date and time (format: YYYY-MM-DD HH:mm)',
+                        description: 'The scheduled appointment date and time'
                       },
                       service: {
                         type: 'string',
-                        description: 'Type of dental service or reason for visit',
+                        description: 'Type of service required'
                       },
                       phoneNumber: {
                         type: 'string',
-                        description: 'Optional contact phone number',
+                        description: 'Optional contact number for confirmation'
                       },
                       notes: {
                         type: 'string',
-                        description: 'Additional notes or special instructions',
-                      },
+                        description: 'Any additional instructions or comments'
+                      }
                     },
-                    required: ['patientName', 'dateTime', 'service'],
-                  },
+                    required: ['name', 'datetime', 'service', 'phoneNumber', 'notes']
+                  }
                 },
                 {
                   type: 'function',
@@ -761,10 +761,10 @@ document.addEventListener('DOMContentLoaded', () => {
                       call_id: callId,
                       output: JSON.stringify({
                         success: true,
-                        message: `Appointment scheduled successfully for ${args.patientName} on ${args.dateTime} for ${args.service}`,
+                        message: `Appointment scheduled successfully for ${args.Name} on ${args.datetime} for ${args.service}`,
                         appointmentDetails: {
-                          patientName: args.patientName,
-                          appointmentTime: args.dateTime,
+                          Name: args.Name,
+                          appointmentTime: args.datetime,
                           service: args.service,
                           notes: args.notes || '',
                         }

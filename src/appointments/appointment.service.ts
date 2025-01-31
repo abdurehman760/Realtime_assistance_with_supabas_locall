@@ -23,7 +23,7 @@ export class AppointmentService {
     try {
       // Define headers for the sheet
       const headers = [
-        'Patient Name',
+        'Name',
         'Appointment Time', // Changed from 'Date Time' to be more clear
         'Service',
         'Notes',
@@ -59,9 +59,9 @@ export class AppointmentService {
       .replace(' at ', ' at '); 
   }
 
-  private formatTimeForSheet(dateTimeStr: string): string {
+  private formatTimeForSheet(datetimeStr: string): string {
     // Convert from "YYYY-MM-DD HH:mm" to "YYYY-MM-DD hh:mm AM/PM"
-    const [date, time] = dateTimeStr.split(' ');
+    const [date, time] = datetimeStr.split(' ');
     const [hours, minutes] = time.split(':');
     const hour = parseInt(hours);
     const ampm = hour >= 12 ? 'PM' : 'AM';
@@ -79,12 +79,9 @@ export class AppointmentService {
         range,
       });
 
-      // Convert times to 12-hour format
-      const bookedTimes = (response.data.values || []).map(([dateTime]) => 
-        this.formatTimeForSheet(dateTime)
-      );
+      // Return exactly what's in the sheet without any transformation
+      const bookedTimes = (response.data.values || []).map(([datetime]) => datetime);
 
-      // Log the booked times
       this.logger.log(`Booked times retrieved: ${JSON.stringify(bookedTimes)}`);
 
       return bookedTimes;
@@ -95,22 +92,22 @@ export class AppointmentService {
   }
 
   async scheduleAppointment(
-    patientName: string,
-    dateTime: string,
+    name: string,  // Changed from Name to name
+    datetime: string,
     service: string,
     notes: string = '',
     phoneNumber: string = '', // Add phone number parameter
   ) {
     try {
-      const formattedDateTime = this.formatTimeForSheet(dateTime);
+      const formatteddatetime = this.formatTimeForSheet(datetime);
       const range = 'Sheet1!A2:F2'; // Updated range to include phone number column
       const now = new Date();
       const createdAt = this.formatDate(now); // Format the date
       
       // Maintain column order matching headers
       const values = [[
-        patientName,    // Column A: Patient Name
-        formattedDateTime, // Use formatted datetime
+        name,    // Changed from Name to name
+        formatteddatetime, // Use formatted datetime
         service,        // Column C: Service
         notes,          // Column D: Notes
         phoneNumber,    // Column E: Phone Number
@@ -128,8 +125,8 @@ export class AppointmentService {
       return {
         ...response.data,
         appointmentDetails: {
-          patientName,
-          dateTime: formattedDateTime,
+          name,  // Changed from Name to name
+          datetime: formatteddatetime,
           service,
           notes,
           phoneNumber,

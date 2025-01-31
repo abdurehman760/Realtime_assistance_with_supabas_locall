@@ -2,8 +2,8 @@ import { Controller, Post, Body, HttpException, HttpStatus, Get } from '@nestjs/
 import { AppointmentService } from './appointment.service';
 
 interface AppointmentDto {
-  patientName: string;
-  dateTime: string;
+  name: string;  // Changed from Name to name
+  datetime: string;
   service: string;
   notes?: string;
   phoneNumber?: string; 
@@ -38,8 +38,8 @@ export class AppointmentController {
   async scheduleAppointment(@Body() appointmentData: AppointmentDto) {
     try {
       const result = await this.appointmentService.scheduleAppointment(
-        appointmentData.patientName,
-        appointmentData.dateTime,
+        appointmentData.name,  // Changed from Name to name
+        appointmentData.datetime,
         appointmentData.service,
         appointmentData.notes,
         appointmentData.phoneNumber,
