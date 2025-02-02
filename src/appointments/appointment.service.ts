@@ -16,7 +16,7 @@ export class AppointmentService {
     });
 
     this.sheets = google.sheets({ version: 'v4', auth });
-    this.initializeSheet(); // Add this line
+    this.initializeSheet(); 
   }
 
   private async initializeSheet() {
