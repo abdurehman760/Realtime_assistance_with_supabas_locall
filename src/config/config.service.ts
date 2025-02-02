@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { SupabaseService } from '../supabase/supabase.service';
 import { UpdateConfigDto } from './dto/update-config.dto';
-import { updateAIConfig } from './ai.config';
+import { updateAIConfig, generateSystemMessage } from './ai.config';
 import { SystemConfig } from './dto/system-config.interface';
 
 @Injectable()
@@ -31,13 +31,37 @@ export class ConfigService implements OnModuleInit, OnModuleDestroy {
   }
 
   // Add logging to initialization
+  private processSystemMessage(systemMessage: string, config: any): string {
+    const replacedVariables = new Set(); // Track replaced variables
+
+    return systemMessage.replace(/\$\{config\.([^}]+)\}/g, (match, path) => {
+      try {
+        const value = path.split('.').reduce((obj, key) => obj?.[key], config);
+        
+        // Only log if we haven't seen this replacement before
+        if (!replacedVariables.has(match)) {
+          console.log(`Replacing ${match} with:`, value);
+          replacedVariables.add(match);
+        }
+
+        return value || match;
+      } catch (error) {
+        if (!replacedVariables.has(match)) {
+          console.log(`Error processing ${match}:`, error);
+          replacedVariables.add(match);
+        }
+        return match;
+      }
+    });
+  }
+
   private async initializeConfig() {
     try {
       console.log('\n=== Initializing Configuration ===');
       
       const { data, error } = await this.supabase.client
         .from('system_config')
-        .select('value')
+        .select('value, system_message')
         .single();
 
       if (error) throw error;
@@ -45,7 +69,27 @@ export class ConfigService implements OnModuleInit, OnModuleDestroy {
       console.log('Loading initial config:', JSON.stringify(data.value, null, 2));
       
       this.cachedConfig = data.value;
-      updateAIConfig(data.value);
+      let systemMessage = data.system_message || generateSystemMessage(this.cachedConfig);
+      
+      if (data.system_message) {
+        systemMessage = this.processSystemMessage(systemMessage, this.cachedConfig);
+        // Removed verbose system message logging
+      }
+      
+      this.cachedConfig = {
+        ...this.cachedConfig,
+        systemMessage: systemMessage
+      };
+
+      // Save generated message if none exists
+      if (!data.system_message) {
+        await this.supabase.client
+          .from('system_config')
+          .update({ system_message: systemMessage })
+          .eq('id', 1);
+      }
+
+      updateAIConfig(this.cachedConfig);
       
       this.logger.log('✅ Configuration loaded successfully');
       console.log('================================\n');
@@ -93,12 +137,15 @@ export class ConfigService implements OnModuleInit, OnModuleDestroy {
     try {
       const { data, error } = await this.supabase.client
         .from('system_config')
-        .select('value, updated_at')
+        .select('value, system_message, updated_at')
         .single();
 
       if (error) throw error;
+
+      // Return raw system_message for form editing
       return {
         ...data.value,
+        systemMessage: data.system_message, // Return raw template
         lastUpdated: data.updated_at
       };
     } catch (error) {
@@ -110,22 +157,36 @@ export class ConfigService implements OnModuleInit, OnModuleDestroy {
   async updateConfig(updateDto: UpdateConfigDto) {
     try {
       console.log('\n=== Manual Configuration Update ===');
-      console.log('Current config:', JSON.stringify(this.cachedConfig, null, 2));
-      console.log('Update request:', JSON.stringify(updateDto, null, 2));
+      
+      const { systemMessage, ...configValues } = updateDto;
+      const rawMessage = systemMessage || generateSystemMessage(configValues);
+      const processedMessage = this.processSystemMessage(rawMessage, configValues);
 
-      // Update configuration in Supabase
+      // Remove verbose system message logging
+      console.log('\n=== System Message Variables Updated ===');
+      
+      // Store the raw template in system_message column
       const { data, error } = await this.supabase.client
         .from('system_config')
-        .update({ value: updateDto })
+        .update({ 
+          value: configValues,
+          system_message: rawMessage  // Store raw template
+        })
         .eq('id', 1)
         .select()
         .single();
 
       if (error) throw error;
 
+      // Combine config values with processed message for AI
+      const fullConfig = {
+        ...configValues,
+        systemMessage: processedMessage  // Use processed message for AI
+      };
+
       // Update local cache and AI configuration
-      this.cachedConfig = updateDto;
-      updateAIConfig(updateDto);
+      this.cachedConfig = fullConfig;
+      updateAIConfig(fullConfig);
 
       this.logger.log('✅ Configuration manually updated successfully');
       console.log('Updated at:', data.updated_at);

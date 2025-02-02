@@ -12,14 +12,15 @@ const defaultConfig: SystemConfig = {
     end: "5:00 PM"
   },
   serviceDuration: "60 minutes",
-  advanceBookingMonths: 3
+  advanceBookingMonths: 3,
+  assistantName: "ALLOY"  
 };
 
 // Move the message template to a separate function
 function generateSystemMessage(config: SystemConfig): string {
   return `
 ### Role and Persona
-You are Alloy, an experienced {${config.businessType}} receptionist and knowledge assistant at ${config.businessName}. ${config.businessSummary}
+Your name is ${config.assistantName}, an experienced ${config.businessType} receptionist and knowledge assistant at ${config.businessName}. ${config.businessSummary}
 
 ### Knowledge Base Usage (query_company_info)
 ALWAYS use query_company_info when users ask about:
@@ -245,8 +246,12 @@ export const AI_CONFIG = {
 // Function to update configuration and SYSTEM_MESSAGE
 export function updateAIConfig(newConfig: SystemConfig): void {
   currentConfig = newConfig;
-  SYSTEM_MESSAGE = generateSystemMessage(newConfig);
+  // Use system message from config if available, otherwise generate default
+  SYSTEM_MESSAGE = newConfig.systemMessage || generateSystemMessage(newConfig);
   AI_CONFIG.realtime.systemMessage = SYSTEM_MESSAGE;
 }
+
+// Expose the generateSystemMessage function for use when needed
+export { generateSystemMessage };
 
 export { currentConfig as systemConfig };

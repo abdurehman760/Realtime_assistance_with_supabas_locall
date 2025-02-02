@@ -42,6 +42,14 @@
                     <div class="error-feedback" style="color: #dc3545; display: none;"></div>
                 </div>
 
+                <div class="form-group">
+                    <label for="assistantName">Assistant Name</label>
+                    <input type="text" id="assistantName" 
+                           placeholder="e.g., Abbas" 
+                           required>
+                    <span class="example-value">Name of the AI assistant</span>
+                </div>
+
                 <div class="form-row">
                     <div class="input-group">
                         <label for="hoursStart">Opening Time</label>
@@ -82,6 +90,34 @@
                         <span class="example-value">Allows bookings up to this many months in advance (1-12 months)</span>
                     </div>
                 </div>
+
+                <div class="section-divider"></div>
+
+                <div class="form-group">
+                    <label for="systemMessage">AI System Message</label>
+                    <span class="tooltip" data-tip="Define how the AI assistant should behave and what role it should take">ⓘ</span>
+                    <div class="warning-message" style="margin-bottom: 10px; padding: 8px; background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; border-radius: 4px;">
+                        <strong>⚠️ Warning:</strong> Use config variables in this format: ${config.variableName}
+                        <br>
+                        <strong>Available Variables:</strong>
+                        <ul style="margin: 5px 0 0 20px;">
+                            <li>${config.assistantName} - Assistant name</li>
+                            <li>${config.businessType} - Your business type</li>
+                            <li>${config.businessName} - Your business name</li>
+                            <li>${config.businessSummary} - Your business summary</li>
+                            <li>${config.businessHours.start} - Opening time</li>
+                            <li>${config.businessHours.end} - Closing time</li>
+                            <li>${config.serviceDuration} - Service duration</li>
+                            <li>${config.advanceBookingMonths} - Booking window</li>
+                        </ul>
+                    </div>
+                    <textarea id="systemMessage" 
+                            placeholder="You are an AI assistant for [Business Name]. Your role is to help customers with..."
+                            required
+                            rows="8"></textarea>
+                    <span class="example-value">Define the AI's personality and role while keeping the system variables intact</span>
+                </div>
+
             </div>
 
             <div class="submit-container">
@@ -142,6 +178,11 @@
                 }
                 if (document.getElementById('hoursEnd').value) {
                     updateTimeHint(document.getElementById('hoursEnd'), 'endTimeHint');
+                }
+
+                // Add system message loading
+                if (config.systemMessage) {
+                    document.getElementById('systemMessage').value = config.systemMessage;
                 }
             } catch (error) {
                 showAlert(error.message, 'error');
@@ -217,7 +258,9 @@
                         end: convertTo12Hour(document.getElementById('hoursEnd').value)
                     },
                     serviceDuration: document.getElementById('serviceDuration').value,
-                    advanceBookingMonths: parseInt(document.getElementById('advanceBookingMonths').value)
+                    advanceBookingMonths: parseInt(document.getElementById('advanceBookingMonths').value),
+                    assistantName: document.getElementById('assistantName').value, 
+                    systemMessage: document.getElementById('systemMessage').value
                 };
 
                 const response = await fetch('/config', {

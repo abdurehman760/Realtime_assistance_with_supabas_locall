@@ -1,4 +1,4 @@
-import { IsString, IsInt, IsObject, ValidateNested, Min, Max } from 'class-validator';
+import { IsString, IsInt, IsObject, ValidateNested, Min, Max, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class BusinessHoursDto {
@@ -48,4 +48,11 @@ export class UpdateConfigDto {
   @Min(1)
   @Max(12)
   advanceBookingMonths: number;
+
+  @IsString()
+  @IsOptional() // Make it optional to allow generating default
+  systemMessage?: string;
+
+  @IsString()
+  assistantName: string;  
 }
