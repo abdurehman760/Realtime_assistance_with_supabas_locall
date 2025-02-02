@@ -255,6 +255,3 @@ Tool | URL | Purpose
 
 
 
-## License
-
-MIT License - See LICENSE file for details
